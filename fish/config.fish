@@ -1,3 +1,8 @@
+# --------------------
+# Functions
+# --------------------
+
+# キーバインディング設定
 function fish_user_key_bindings
   bind \c] fzf_ghq      # Ctrl-]
   bind \cr fzf_history  # Ctrl-r
@@ -5,6 +10,7 @@ function fish_user_key_bindings
   bind \co fzf_file     # Ctrl-o
 end
 
+# Yazi (ファイルマネージャー) 統合
 function y
   set tmp (mktemp -t "yazi-cwd.XXXXXX")
   yazi $argv --cwd-file="$tmp"
@@ -14,59 +20,96 @@ function y
   rm -f -- "$tmp"
 end
 
+
+# --------------------
+# Environment Variables
+# --------------------
+
+# エディタ設定
+set -gx EDITOR nvim
+
+
+# --------------------
+# Tool Initialization
+# --------------------
+
+# zoxide (スマートなディレクトリジャンプ)
 zoxide init fish | source
 
-# brew
+# Homebrew
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# aliases
+# direnv (ディレクトリ単位の環境変数管理)
+direnv hook fish | source
+eval (direnv hook fish)
+
+# anyenv (複数言語のバージョン管理)
+status --is-interactive; and source (anyenv init -|psub)
+
+
+# --------------------
+# Path Settings
+# --------------------
+
+# Rust
+fish_add_path "$HOME/.cargo/bin"
+
+# npm global packages
+fish_add_path "$HOME/.npm-global/bin"
+
+
+# --------------------
+# Aliases - ディレクトリ移動
+# --------------------
+
 alias cdd 'cd ~/Downloads'
 alias cdc 'cd ~/.config'
-alias sm 'open -a Sublime\ Merge'
-alias st 'open -a Sublime\ Text'
-alias pn 'pnpm'
 
-# aliases (git)
+
+# --------------------
+# Aliases - Git操作
+# --------------------
+
+# 基本コマンド
 alias g 'git'
 alias gst 'git status'
 alias gsh 'git show HEAD'
 alias glog "git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all"
+
+# diff
 alias gd 'git diff'
 alias gdc 'git diff --cached'
 
+# add
 alias ga 'git add'
 alias gaa 'git add --all'
 
+# commit
 alias gc 'git commit'
 alias gc! 'git commit --amend'
 alias gcmsg 'git commit -m'
 alias gcauto 'claude --dangerously-skip-permissions -p "git diff --cached を実行して内容を確認して、stagingの内容のみコミットして"'
 
+# branch/checkout/merge
 alias gb 'git branch'
 alias gco 'git checkout'
 alias gm 'git merge'
 
+# fetch/pull/push
 alias gf 'git fetch'
 alias gf! 'git fetch --prune'
 alias gl 'git pull'
 alias gp 'git push'
 alias gp! 'git push --force'
 
-# direnv
-direnv hook fish | source
-export EDITOR=vi
-eval (direnv hook fish)
 
-# anyenv
-status --is-interactive; and source (anyenv init -|psub)
+# --------------------
+# Aliases - アプリケーション
+# --------------------
 
-# Rust
-fish_add_path "$HOME/.cargo/bin"
-
-# Claude Code
-fish_add_path "$HOME/.npm-global/bin"
+alias pn 'pnpm'
+alias sm 'open -a Sublime\ Merge'
+alias st 'open -a Sublime\ Text'
+alias vi 'nvim'
 alias yolo="claude --dangerously-skip-permissions"
-
-# Keka
 alias keka="/Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a"
-
