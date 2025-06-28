@@ -5,3 +5,31 @@ sort_by       = "mtime"
 sort_reverse  = true
 show_hidden   = true
 
+[opener]
+sublime_merge = [
+  { run = 'open -a Sublime\ Merge "$@"', desc = "Open with Sublime Merge", for = "macos" },
+]
+cursor = [
+  { run = 'cursor "$@"', desc = "Open with Cursor", for = "macos" },
+]
+
+[open]
+rules = [
+	# Folder
+	{ name = "*/", use = [ "edit", "open", "sublime_merge", "cursor" ] },
+	# Text
+	{ mime = "text/*", use = [ "edit", "reveal" ] },
+	# Image
+	{ mime = "image/*", use = [ "open", "reveal" ] },
+	# Media
+	{ mime = "{audio,video}/*", use = [ "play", "reveal" ] },
+	# Archive
+	{ mime = "application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}", use = [ "extract", "reveal" ] },
+	# JSON
+	{ mime = "application/{json,ndjson}", use = [ "edit", "reveal" ] },
+	{ mime = "*/javascript", use = [ "edit", "reveal" ] },
+	# Empty file
+	{ mime = "inode/empty", use = [ "edit", "reveal" ] },
+	# Fallback
+	{ name = "*", use = [ "open", "reveal" ] },
+]
