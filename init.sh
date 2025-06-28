@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# 🎉 dotfiles のセットアップ
+
 # 🔗 .tmux.conf のシンボリックリンク作成
 if [ -e ~/.tmux.conf ]; then
   echo "⏭️ ~/.tmux.conf は既に存在します"
@@ -15,9 +17,7 @@ if [ ! -d ~/.tmux/plugins/tpm ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
   echo "✅ tpm をインストールしました: ~/.tmux/plugins/tpm"
 else
-  echo "📦 tpm を更新しています..."
-  (cd ~/.tmux/plugins/tpm && git pull)
-  echo "✅ tpm を更新しました"
+  echo "⏭️ tpm は既にインストールされています"
 fi
 
 # 🤖 Claude 設定のセットアップ
