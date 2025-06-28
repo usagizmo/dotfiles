@@ -6,8 +6,6 @@
 function fish_user_key_bindings
   bind \c] fzf_ghq      # Ctrl-]
   bind \cr fzf_history  # Ctrl-r
-  #bind \cj fzf_z        # Ctrl-j
-  bind \co fzf_file     # Ctrl-o
 end
 
 # Yazi (ファイルマネージャー) 統合

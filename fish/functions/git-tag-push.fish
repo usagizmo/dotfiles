@@ -1,4 +1,4 @@
-function git-tag-push -d "🏷️ タグを作成してoriginにプッシュ" -a tag_name
+function git-tag-push -d "タグを作成してoriginにプッシュ" -a tag_name
     # 引数チェック
     if test -z "$tag_name"
         echo "❌ エラー: タグ名を指定してください"
