@@ -16,6 +16,9 @@ end
 
 zoxide init fish | source
 
+# brew
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
 # aliases
 alias cdd 'cd ~/Downloads'
 alias cdc 'cd ~/.config'
@@ -61,6 +64,7 @@ status --is-interactive; and source (anyenv init -|psub)
 fish_add_path "$HOME/.cargo/bin"
 
 # Claude Code
+fish_add_path "$HOME/.npm-global/bin"
 alias yolo="claude --dangerously-skip-permissions"
 
 # Keka
