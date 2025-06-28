@@ -10,3 +10,12 @@ if [ -d ~/.tmux/plugins/tpm ]; then
 else
   echo "⚠️ tpm がインストールされていません。init.sh を実行してください"
 fi
+
+# 📁 Yazi プラグインの更新
+if [ -x "$(command -v ya)" ]; then
+  echo "📦 Yazi プラグインを更新しています..."
+  ya pkg upgrade
+  echo "✅ Yazi プラグインを更新しました"
+else
+  echo "⚠️ ya コマンドが見つかりません。Yazi プラグインの更新をスキップします"
+fi

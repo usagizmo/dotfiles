@@ -119,3 +119,40 @@ if [ -x "$(command -v fish)" ]; then
 else
   echo "⚠️ fish がインストールされていません。fisher とプラグインのセットアップをスキップします"
 fi
+
+# 📁 Yazi 設定のセットアップ
+if [ ! -d ~/.config/yazi ]; then
+  mkdir -p ~/.config/yazi
+  echo "✅ ディレクトリを作成しました: ~/.config/yazi"
+fi
+
+# yazi.toml のシンボリックリンク
+if [ -e ~/.config/yazi/yazi.toml ]; then
+  echo "⏭️ ~/.config/yazi/yazi.toml は既に存在します"
+else
+  if ln -s "$(pwd)/yazi/yazi.toml" ~/.config/yazi/yazi.toml 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.config/yazi/yazi.toml -> $(pwd)/yazi/yazi.toml"
+  fi
+fi
+
+# theme.toml のシンボリックリンク
+if [ -e ~/.config/yazi/theme.toml ]; then
+  echo "⏭️ ~/.config/yazi/theme.toml は既に存在します"
+else
+  if ln -s "$(pwd)/yazi/theme.toml" ~/.config/yazi/theme.toml 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.config/yazi/theme.toml -> $(pwd)/yazi/theme.toml"
+  fi
+fi
+
+# Catppuccin Dracula テーマのインストール
+if [ -x "$(command -v ya)" ]; then
+  if [ ! -d ~/.config/yazi/flavors/dracula.yazi ]; then
+    echo "📦 Catppuccin Dracula テーマをインストールしています..."
+    ya pkg add yazi-rs/flavors:dracula
+    echo "✅ Catppuccin Dracula テーマをインストールしました"
+  else
+    echo "⏭️ Catppuccin Dracula テーマは既にインストールされています"
+  fi
+else
+  echo "⚠️ ya コマンドが見つかりません。Yazi のテーマインストールをスキップします"
+fi
