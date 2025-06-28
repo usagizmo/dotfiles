@@ -156,3 +156,27 @@ if [ -x "$(command -v ya)" ]; then
 else
   echo "⚠️ ya コマンドが見つかりません。Yazi のテーマインストールをスキップします"
 fi
+
+# 📝 Neovim 設定のセットアップ
+if [ ! -d ~/.config/nvim ]; then
+  mkdir -p ~/.config/nvim
+  echo "✅ ディレクトリを作成しました: ~/.config/nvim"
+fi
+
+# init.lua のシンボリックリンク
+if [ -e ~/.config/nvim/init.lua ]; then
+  echo "⏭️ ~/.config/nvim/init.lua は既に存在します"
+else
+  if ln -s "$(pwd)/nvim/init.lua" ~/.config/nvim/init.lua 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.config/nvim/init.lua -> $(pwd)/nvim/init.lua"
+  fi
+fi
+
+# lua ディレクトリのシンボリックリンク
+if [ -e ~/.config/nvim/lua ]; then
+  echo "⏭️ ~/.config/nvim/lua は既に存在します"
+else
+  if ln -s "$(pwd)/nvim/lua" ~/.config/nvim/lua 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.config/nvim/lua -> $(pwd)/nvim/lua"
+  fi
+fi
