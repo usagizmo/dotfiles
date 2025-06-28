@@ -4,7 +4,7 @@
 vim.keymap.set("i", "jk", "<Esc>")
 
 -- Neo-tree
-vim.keymap.set("n", "<leader>ft", "<cmd>Neotree toggle<cr>", { desc = "NeoTree" })
+vim.keymap.set("n", "<leader>o", "<cmd>Neotree focus<cr>", { desc = "NeoTree" })
 
 -- Telescope
 vim.keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "Find files" })
