@@ -1,4 +1,4 @@
-function git-cleanup -d "🧹 現在のブランチを削除してmainブランチを最新に更新"
+function git-cleanup -d "現在のブランチを削除してmainブランチを最新に更新"
     # 現在のブランチ名を保存
     set current_branch (git branch --show-current)
 

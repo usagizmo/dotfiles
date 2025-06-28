@@ -99,14 +99,6 @@ if [ -x "$(command -v fish)" ]; then
     echo "⏭️ fisher は既にインストールされています"
   fi
 
-  # fish-fzf プラグインのインストール
-  if [ ! -f ~/.config/fish/fish_plugins ] || ! grep -q "takashabe/fish-fzf" ~/.config/fish/fish_plugins 2>/dev/null; then
-    echo "📦 fish-fzf をインストールしています..."
-    fish -c "fisher install takashabe/fish-fzf"
-    echo "✅ fish-fzf をインストールしました"
-  else
-    echo "⏭️ fish-fzf は既にインストールされています"
-  fi
 
   # bobthefish テーマのインストール
   if [ ! -f ~/.config/fish/fish_plugins ] || ! grep -q "oh-my-fish/theme-bobthefish" ~/.config/fish/fish_plugins 2>/dev/null; then

@@ -1,4 +1,4 @@
-function git-archive -d "📦 最新コミットの変更ファイルをzipアーカイブ化"
+function git-archive -d "最新コミットの変更ファイルをzipアーカイブ化"
     echo "📦 最新コミットの変更ファイルをアーカイブ化しています..."
     git archive --format=zip --prefix=root/ HEAD (git diff --diff-filter=d --name-only HEAD^ HEAD) -o archive.zip
     if test $status -eq 0
