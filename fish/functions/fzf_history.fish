@@ -8,7 +8,7 @@ function fzf_history -d "コマンド履歴をfzfで選択（入力中のテキ�
     set current_buffer (commandline)
 
     # 履歴から選択（重複を除去し、現在の入力をクエリとして使用）
-    set selected_history (history | fzf --height 40% --border --query="$current_buffer" --select-1 --exit-0)
+    set selected_history (history | fzf --border --query="$current_buffer" --select-1 --exit-0)
 
     if test -n "$selected_history"
         # 選択された履歴をコマンドラインに設定

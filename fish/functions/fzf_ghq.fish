@@ -9,7 +9,7 @@ function fzf_ghq -d "ghqで管理しているリポジトリを選択してデ�
         return 1
     end
 
-    set selected_repo (ghq list | fzf --height 40% --border --preview "ls -la (ghq root)/{}")
+    set selected_repo (ghq list | fzf --border --preview "ls -la (ghq root)/{}")
 
     if test -n "$selected_repo"
         set repo_path (ghq root)/$selected_repo
