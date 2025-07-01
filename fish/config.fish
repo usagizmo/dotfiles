@@ -52,9 +52,6 @@ status --is-interactive; and source (anyenv init -|psub)
 # Rust
 fish_add_path "$HOME/.cargo/bin"
 
-# npm global packages
-fish_add_path "$HOME/.npm-global/bin"
-
 
 # --------------------
 # Aliases - ディレクトリ移動
