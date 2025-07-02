@@ -21,4 +21,7 @@ vim.keymap.set("n", "<leader>e", "<cmd>Neotree focus<cr>", { desc = "NeoTree" })
 vim.keymap.set("n", "<leader>o", "<cmd>Telescope find_files<cr>", { desc = "Find files" })
 vim.keymap.set("n", "<leader>g", "<cmd>Telescope live_grep<cr>", { desc = "Live grep" })
 vim.keymap.set("n", "<leader>r", "<cmd>Telescope oldfiles<cr>", { desc = "Recent files" })
+vim.keymap.set('n', '<leader>b', "<cmd>Telescope buffers<cr>", { desc = 'Buffers' })
+vim.keymap.set('n', '<leader>h', "<cmd>Telescope help_tags<cr>", { desc = 'Help tags' })
 vim.keymap.set("n", "<leader>c", "<cmd>Telescope commands<cr>", { desc = "Commands" })
+
