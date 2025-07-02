@@ -88,6 +88,22 @@ for func_file in $(pwd)/fish/functions/*.fish; do
   fi
 done
 
+# 🔐 Fish 機密環境変数設定のセットアップ
+if [ ! -d ~/.local/fish ]; then
+  mkdir -p ~/.local/fish
+  echo "✅ ディレクトリを作成しました: ~/.local/fish"
+fi
+
+# env.fish のコピー（既存ファイルがある場合は上書きしない）
+if [ -e ~/.local/fish/env.fish ]; then
+  echo "⏭️ ~/.local/fish/env.fish は既に存在します"
+else
+  if cp "$(pwd)/fish/env.fish" ~/.local/fish/env.fish 2>/dev/null; then
+    echo "✅ ファイルをコピーしました: ~/.local/fish/env.fish <- $(pwd)/fish/env.fish"
+    echo "📝 ~/.local/fish/env.fish を編集して環境変数を設定してください"
+  fi
+fi
+
 # 🎣 Fisher (fish plugin manager) のセットアップ
 if [ -x "$(command -v fish)" ]; then
   # fisher がインストールされているか確認

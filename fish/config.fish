@@ -26,6 +26,11 @@ end
 # エディタ設定
 set -gx EDITOR nvim
 
+# 機密情報は別ファイルで管理
+if test -f ~/.local/fish/env.fish
+    source ~/.local/fish/env.fish
+end
+
 
 # --------------------
 # Tool Initialization
