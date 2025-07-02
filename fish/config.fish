@@ -107,6 +107,7 @@ alias gp! 'git push --force'
 # Aliases - アプリケーション
 # --------------------
 
+alias rm 'safe-rm'
 alias pn 'pnpm'
 alias sm 'open -a Sublime\ Merge'
 alias st 'open -a Sublime\ Text'
