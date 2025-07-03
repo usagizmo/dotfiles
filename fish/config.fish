@@ -18,6 +18,10 @@ function y
   rm -f -- "$tmp"
 end
 
+function vi
+  nvim --listen ~/.cache/nvim/server-$(date +%s).pipe $argv
+end
+
 
 # --------------------
 # Environment Variables
@@ -111,6 +115,5 @@ alias rm 'safe-rm'
 alias pn 'pnpm'
 alias sm 'open -a Sublime\ Merge'
 alias st 'open -a Sublime\ Text'
-alias vi 'nvim'
 alias yolo="claude --dangerously-skip-permissions"
 alias keka="/Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a"

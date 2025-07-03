@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# 最新のNeovim server-*.pipe を見つけて特定のファイル+行列位置を開くスクリプト
+
+# Usage:
+# nvim-send '<file_path>' [line] [column]
+# 例: nvim-send '~/.config/fish/config.fish' 10 5
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 '<file_path>' [line] [column]"
+    echo "Example: $0 '~/.config/fish/config.fish' 10 5"
+    exit 1
+fi
+
+# ~/.cache/nvim/server-*.pipe から最新のものを取得
+# fish/config.fish で --listen をしているサーバーの最新を取得
+latest_pipe=$(ls -t ~/.cache/nvim/server-*.pipe 2>/dev/null | head -n 1)
+
+if [ -z "$latest_pipe" ]; then
+    echo "Error: No nvim server pipe found in ~/.cache/nvim/"
+    echo "Make sure nvim is running with --listen option"
+    exit 1
+fi
+
+# nvim --remote-send を実行
+nvim --server "$latest_pipe" --remote-send "<C-\><C-N>:n $1 | call cursor($2, $3)<CR>"
+
