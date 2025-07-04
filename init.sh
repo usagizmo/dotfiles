@@ -88,6 +88,17 @@ for func_file in $(pwd)/fish/functions/*.fish; do
   fi
 done
 
+# 壊れたシンボリックリンクをクリーンアップ
+for linked_file in ~/.config/fish/functions/*.fish; do
+  if [ -L "$linked_file" ]; then
+    if [ ! -e "$linked_file" ]; then
+      func_name=$(basename "$linked_file")
+      rm "$linked_file"
+      echo "🗑️ 壊れたシンボリックリンクを削除しました: ~/.config/fish/functions/$func_name"
+    fi
+  fi
+done
+
 # 🔐 Fish 機密環境変数設定のセットアップ
 if [ ! -d ~/.local/fish ]; then
   mkdir -p ~/.local/fish
