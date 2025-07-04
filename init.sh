@@ -1,26 +1,10 @@
 #!/bin/bash
 
-# 🎉 dotfiles のセットアップ
-
-# 🔗 .tmux.conf のシンボリックリンク作成
-if [ -e ~/.tmux.conf ]; then
-  echo "⏭️ ~/.tmux.conf は既に存在します"
-else
-  if ln -s "$(pwd)/tmux/.tmux.conf" ~/.tmux.conf 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.tmux.conf -> $(pwd)/tmux/.tmux.conf"
-  fi
-fi
-
-# 🔧 tmux plugin manager (tpm) のセットアップ
-if [ ! -d ~/.tmux/plugins/tpm ]; then
-  echo "📦 tpm をインストールしています..."
-  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-  echo "✅ tpm をインストールしました: ~/.tmux/plugins/tpm"
-else
-  echo "⏭️ tpm は既にインストールされています"
-fi
-
+# ======================
 # 🤖 Claude 設定のセットアップ
+# ======================
+
+# Claude設定ディレクトリ作成
 if [ ! -d ~/.claude ]; then
   mkdir -p ~/.claude
   echo "✅ ディレクトリを作成しました: ~/.claude"
@@ -53,7 +37,35 @@ else
   fi
 fi
 
+
+# ======================
+# 🔧 Tmux 設定のセットアップ
+# ======================
+
+# .tmux.conf のシンボリックリンク作成
+if [ -e ~/.tmux.conf ]; then
+  echo "⏭️ ~/.tmux.conf は既に存在します"
+else
+  if ln -s "$(pwd)/tmux/.tmux.conf" ~/.tmux.conf 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.tmux.conf -> $(pwd)/tmux/.tmux.conf"
+  fi
+fi
+
+# tmux plugin manager (tpm) のセットアップ
+if [ ! -d ~/.tmux/plugins/tpm ]; then
+  echo "📦 tpm をインストールしています..."
+  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+  echo "✅ tpm をインストールしました: ~/.tmux/plugins/tpm"
+else
+  echo "⏭️ tpm は既にインストールされています"
+fi
+
+
+# ======================
 # 🐠 Fish 設定のセットアップ
+# ======================
+
+# Fish設定ディレクトリ作成
 if [ ! -d ~/.config/fish ]; then
   mkdir -p ~/.config/fish
   echo "✅ ディレクトリを作成しました: ~/.config/fish"
@@ -99,7 +111,7 @@ for linked_file in ~/.config/fish/functions/*.fish; do
   fi
 done
 
-# 🔐 Fish 機密環境変数設定のセットアップ
+# Fish 機密環境変数設定のセットアップ
 if [ ! -d ~/.local/fish ]; then
   mkdir -p ~/.local/fish
   echo "✅ ディレクトリを作成しました: ~/.local/fish"
@@ -115,7 +127,7 @@ else
   fi
 fi
 
-# 🎣 Fisher (fish plugin manager) のセットアップ
+# Fisher (fish plugin manager) のセットアップ
 if [ -x "$(command -v fish)" ]; then
   # fisher がインストールされているか確認
   if ! fish -c "type -q fisher" 2>/dev/null; then
@@ -125,7 +137,6 @@ if [ -x "$(command -v fish)" ]; then
   else
     echo "⏭️ fisher は既にインストールされています"
   fi
-
 
   # bobthefish テーマのインストール
   if [ ! -f ~/.config/fish/fish_plugins ] || ! grep -q "oh-my-fish/theme-bobthefish" ~/.config/fish/fish_plugins 2>/dev/null; then
@@ -139,7 +150,41 @@ else
   echo "⚠️ fish がインストールされていません。fisher とプラグインのセットアップをスキップします"
 fi
 
+
+# ======================
+# 📝 Neovim 設定のセットアップ
+# ======================
+
+# Neovim設定ディレクトリ作成
+if [ ! -d ~/.config/nvim ]; then
+  mkdir -p ~/.config/nvim
+  echo "✅ ディレクトリを作成しました: ~/.config/nvim"
+fi
+
+# init.lua のシンボリックリンク
+if [ -e ~/.config/nvim/init.lua ]; then
+  echo "⏭️ ~/.config/nvim/init.lua は既に存在します"
+else
+  if ln -s "$(pwd)/nvim/init.lua" ~/.config/nvim/init.lua 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.config/nvim/init.lua -> $(pwd)/nvim/init.lua"
+  fi
+fi
+
+# lua ディレクトリのシンボリックリンク
+if [ -e ~/.config/nvim/lua ]; then
+  echo "⏭️ ~/.config/nvim/lua は既に存在します"
+else
+  if ln -s "$(pwd)/nvim/lua" ~/.config/nvim/lua 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.config/nvim/lua -> $(pwd)/nvim/lua"
+  fi
+fi
+
+
+# ======================
 # 📁 Yazi 設定のセットアップ
+# ======================
+
+# Yazi設定ディレクトリ作成
 if [ ! -d ~/.config/yazi ]; then
   mkdir -p ~/.config/yazi
   echo "✅ ディレクトリを作成しました: ~/.config/yazi"
@@ -176,31 +221,12 @@ else
   echo "⚠️ ya コマンドが見つかりません。Yazi のテーマインストールをスキップします"
 fi
 
-# 📝 Neovim 設定のセットアップ
-if [ ! -d ~/.config/nvim ]; then
-  mkdir -p ~/.config/nvim
-  echo "✅ ディレクトリを作成しました: ~/.config/nvim"
-fi
 
-# init.lua のシンボリックリンク
-if [ -e ~/.config/nvim/init.lua ]; then
-  echo "⏭️ ~/.config/nvim/init.lua は既に存在します"
-else
-  if ln -s "$(pwd)/nvim/init.lua" ~/.config/nvim/init.lua 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.config/nvim/init.lua -> $(pwd)/nvim/init.lua"
-  fi
-fi
-
-# lua ディレクトリのシンボリックリンク
-if [ -e ~/.config/nvim/lua ]; then
-  echo "⏭️ ~/.config/nvim/lua は既に存在します"
-else
-  if ln -s "$(pwd)/nvim/lua" ~/.config/nvim/lua 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.config/nvim/lua -> $(pwd)/nvim/lua"
-  fi
-fi
-
+# ======================
 # 📋 Taskwarrior 設定のセットアップ
+# ======================
+
+# Taskwarrior設定ファイル作成
 if [ ! -f ~/.taskrc ]; then
   touch ~/.taskrc
   echo "✅ ファイルを作成しました: ~/.taskrc"
