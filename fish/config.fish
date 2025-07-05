@@ -91,7 +91,7 @@ alias gaa 'git add --all'
 # commit
 alias gc 'git commit'
 alias gc! 'git commit --amend'
-alias gcmsg 'git commit -m'
+alias gcm 'git commit -m'
 alias gcauto 'claude --dangerously-skip-permissions -p "git diff --cached を実行して内容を確認して、stagingの内容のみコミットして"'
 
 # branch/checkout/merge
