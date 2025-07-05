@@ -199,3 +199,26 @@ else
     echo "✅ シンボリックリンクを作成しました: ~/.config/nvim/lua -> $(pwd)/nvim/lua"
   fi
 fi
+
+# 📋 Taskwarrior 設定のセットアップ
+if [ ! -f ~/.taskrc ]; then
+    touch ~/.taskrc
+    echo "✅ ファイルを作成しました: ~/.taskrc"
+fi
+
+# Taskwarrior 設定の追加
+if ! grep -q "uda.duration.label=Duration" ~/.taskrc; then
+    echo "📦 Taskwarrior 設定を追加しています..."
+
+    cat >> ~/.taskrc << 'EOF'
+uda.duration.type=string
+uda.duration.label=Duration
+report.next.columns=id,start.age,entry.age,depends,priority,project,tags,recur,scheduled.countdown,due.relative,until.remaining,duration,description,urgency
+report.next.labels=ID,Active,Age,Deps,P,Project,Tag,Recur,S,Due,Until,Dur,Description,Urg
+
+EOF
+
+    echo "✅ Taskwarrior 設定を ~/.taskrc に追加しました"
+else
+    echo "⏭️ Taskwarrior 設定は既に存在します"
+fi

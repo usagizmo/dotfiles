@@ -117,3 +117,4 @@ alias sm 'open -a Sublime\ Merge'
 alias st 'open -a Sublime\ Text'
 alias yolo="claude --dangerously-skip-permissions"
 alias keka="/Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a"
+alias t 'task'
