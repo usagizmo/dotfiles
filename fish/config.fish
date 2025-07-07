@@ -108,6 +108,20 @@ alias gp! 'git push --force'
 
 
 # --------------------
+# Aliases - Taskwarrior
+# --------------------
+
+alias t 'task'
+alias ta 'task add'
+alias tan 'task annotate'
+alias tm 'task modify'
+alias te 'task edit'
+alias ts 'task start'
+alias tst 'task stop'
+alias td 'task done'
+
+
+# --------------------
 # Aliases - アプリケーション
 # --------------------
 
@@ -117,3 +131,4 @@ alias sm 'open -a Sublime\ Merge'
 alias st 'open -a Sublime\ Text'
 alias yolo="claude --dangerously-skip-permissions"
 alias keka="/Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a"
+
