@@ -92,7 +92,7 @@ alias gaa 'git add --all'
 alias gc 'git commit'
 alias gc! 'git commit --amend'
 alias gcm 'git commit -m'
-alias gcauto 'claude --dangerously-skip-permissions -p "git diff --cached を実行して内容を確認して、stagingの内容のみコミットして"'
+alias gca 'claude --dangerously-skip-permissions -p "git diff --cached を実行して内容を確認して、stagingの内容のみコミットして"'
 
 # branch/checkout/merge
 alias gb 'git branch'
