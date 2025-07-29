@@ -254,6 +254,26 @@ fi
 
 
 # ======================
+# ⌨️ macOS キーバインディング設定のセットアップ
+# ======================
+
+# KeyBindings ディレクトリ作成
+if [ ! -d ~/Library/KeyBindings ]; then
+  mkdir -p ~/Library/KeyBindings
+  echo "✅ ディレクトリを作成しました: ~/Library/KeyBindings"
+fi
+
+# DefaultKeyBinding.dict のシンボリックリンク
+if [ -e ~/Library/KeyBindings/DefaultKeyBinding.dict ]; then
+  echo "⏭️ ~/Library/KeyBindings/DefaultKeyBinding.dict は既に存在します"
+else
+  if ln -s "$(pwd)/Library/KeyBindings/DefaultKeyBinding.dict" ~/Library/KeyBindings/DefaultKeyBinding.dict 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/Library/KeyBindings/DefaultKeyBinding.dict -> $(pwd)/Library/KeyBindings/DefaultKeyBinding.dict"
+  fi
+fi
+
+
+# ======================
 # 🐚 Zsh 設定のセットアップ
 # ======================
 
