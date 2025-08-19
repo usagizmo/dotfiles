@@ -37,6 +37,15 @@ else
   fi
 fi
 
+# agents ディレクトリのシンボリックリンク
+if [ -e ~/.claude/agents ]; then
+  echo "⏭️ ~/.claude/agents は既に存在します"
+else
+  if ln -s "$(pwd)/claude/agents" ~/.claude/agents 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.claude/agents -> $(pwd)/claude/agents"
+  fi
+fi
+
 
 # ======================
 # 🔧 Tmux 設定のセットアップ
