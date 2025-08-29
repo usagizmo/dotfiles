@@ -113,20 +113,6 @@ alias gp! 'git push --force'
 
 
 # --------------------
-# Aliases - Taskwarrior
-# --------------------
-
-alias t 'task'
-alias ta 'task add'
-alias tan 'task annotate'
-alias tm 'task modify'
-alias te 'task edit'
-alias ts 'task start'
-alias tst 'task stop'
-alias td 'task done'
-
-
-# --------------------
 # Aliases - アプリケーション
 # --------------------
 
