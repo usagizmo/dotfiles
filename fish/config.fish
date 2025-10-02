@@ -64,6 +64,9 @@ set --erase _asdf_shims
 # Path Settings
 # --------------------
 
+# User
+fish_add_path "$HOME/.local/bin"
+
 # Rust
 fish_add_path "$HOME/.cargo/bin"
 
@@ -123,4 +126,3 @@ alias sm 'open -a Sublime\ Merge'
 alias st 'open -a Sublime\ Text'
 alias yolo="claude --dangerously-skip-permissions"
 alias keka="/Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a"
-
