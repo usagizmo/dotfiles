@@ -15,6 +15,33 @@ fi
 
 
 # ======================
+# 🤖 Codex 設定のセットアップ
+# ======================
+
+# .codex ディレクトリのシンボリックリンク
+if [ -e ~/.codex ]; then
+  echo "⏭️ ~/.codex は既に存在します"
+else
+  if [ -d "$(pwd)/codex" ]; then
+    if ln -s "$(pwd)/codex" ~/.codex 2>/dev/null; then
+      echo "✅ シンボリックリンクを作成しました: ~/.codex -> $(pwd)/codex"
+    fi
+  else
+    echo "⚠️ codex ディレクトリが見つかりません。後で再実行してください"
+  fi
+fi
+
+# codex/AGENTS.md のシンボリックリンク
+if [ -L "$(pwd)/codex/AGENTS.md" ]; then
+  echo "⏭️ ~/.codex/AGENTS.md のシンボリックリンクは既に存在します"
+else
+  if ln -s ../claude/CLAUDE.md "$(pwd)/codex/AGENTS.md" 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.codex/AGENTS.md -> ../claude/CLAUDE.md"
+  fi
+fi
+
+
+# ======================
 # 🔧 Tmux 設定のセットアップ
 # ======================
 
