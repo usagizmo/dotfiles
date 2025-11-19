@@ -120,8 +120,7 @@ alias gp! 'git push --force'
 # --------------------
 
 alias rm 'safe-rm'
-alias pn 'pnpm'
-alias tm="task-master"
+alias br 'bun run'
 alias sm 'open -a Sublime\ Merge'
 alias st 'open -a Sublime\ Text'
 alias yolo="claude --dangerously-skip-permissions"
