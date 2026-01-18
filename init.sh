@@ -246,6 +246,45 @@ fi
 
 
 # ======================
+# 🖥️ Cursor 設定のセットアップ
+# ======================
+
+# Cursor設定ディレクトリ
+CURSOR_USER_DIR="$HOME/Library/Application Support/Cursor/User"
+
+# Cursor設定ディレクトリが存在する場合のみセットアップ
+if [ -d "$CURSOR_USER_DIR" ]; then
+  # settings.json のシンボリックリンク
+  if [ -L "$CURSOR_USER_DIR/settings.json" ]; then
+    echo "⏭️ $CURSOR_USER_DIR/settings.json は既にシンボリックリンクです"
+  else
+    if [ -e "$CURSOR_USER_DIR/settings.json" ]; then
+      rm "$CURSOR_USER_DIR/settings.json"
+      echo "🗑️ 既存のファイルを削除しました: $CURSOR_USER_DIR/settings.json"
+    fi
+    if ln -s "$(pwd)/cursor/settings.json" "$CURSOR_USER_DIR/settings.json" 2>/dev/null; then
+      echo "✅ シンボリックリンクを作成しました: $CURSOR_USER_DIR/settings.json -> $(pwd)/cursor/settings.json"
+    fi
+  fi
+
+  # keybindings.json のシンボリックリンク
+  if [ -L "$CURSOR_USER_DIR/keybindings.json" ]; then
+    echo "⏭️ $CURSOR_USER_DIR/keybindings.json は既にシンボリックリンクです"
+  else
+    if [ -e "$CURSOR_USER_DIR/keybindings.json" ]; then
+      rm "$CURSOR_USER_DIR/keybindings.json"
+      echo "🗑️ 既存のファイルを削除しました: $CURSOR_USER_DIR/keybindings.json"
+    fi
+    if ln -s "$(pwd)/cursor/keybindings.json" "$CURSOR_USER_DIR/keybindings.json" 2>/dev/null; then
+      echo "✅ シンボリックリンクを作成しました: $CURSOR_USER_DIR/keybindings.json -> $(pwd)/cursor/keybindings.json"
+    fi
+  fi
+else
+  echo "⚠️ Cursor がインストールされていません。Cursor 設定のセットアップをスキップします"
+fi
+
+
+# ======================
 # 🐚 Zsh 設定のセットアップ
 # ======================
 
