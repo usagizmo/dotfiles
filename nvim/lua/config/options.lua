@@ -6,3 +6,6 @@ vim.opt.number = true
 -- fishシェルでaliasを使用可能にする
 vim.opt.shell = "/opt/homebrew/bin/fish"
 
+-- システムクリップボードと連携（yでコピー、pでペースト）
+vim.opt.clipboard = "unnamedplus"
+
