@@ -1,0 +1,140 @@
+{
+  "npm.packageManager": "pnpm",
+  "editor.fontLigatures": true,
+  "editor.fontFamily": "Moralerspace Neon",
+  "editor.fontSize": 11,
+  "editor.lineHeight": 1.4,
+  "editor.accessibilitySupport": "off",
+  "editor.guides.bracketPairs": "active",
+  "editor.stickyScroll.enabled": true,
+  "editor.minimap.enabled": false,
+  "editor.stickyScroll.maxLineCount": 20,
+  "editor.scrollBeyondLastLine": false,
+  "terminal.integrated.defaultProfile.osx": "fish",
+  "terminal.integrated.fontFamily": "Moralerspace Neon",
+  "terminal.integrated.fontSize": 11,
+  "terminal.integrated.lineHeight": 1.2,
+  "terminal.integrated.suggest.enabled": true,
+  "terminal.external.osxExec": "iTerm.app",
+  "terminal.integrated.copyOnSelection": true,
+  "emmet.triggerExpansionOnTab": true,
+  "emmet.variables": {
+    "lang": "ja"
+  },
+  "window.commandCenter": false,
+  "workbench.colorTheme": "One Monokai",
+  "workbench.colorCustomizations": {
+    "editorUnnecessaryCode.opacity": "#00000066",
+    "[One Monokai]": {
+      // Editor
+      "editor.background": "#191a1a",
+      "editor.lineHighlightBackground": "#afb1b622",
+      "editorCursor.foreground": "#ffffff",
+      "editorGutter.foldingControlForeground": "#ffffff",
+      "editorIndentGuide.activeBackground1": "#4b525bcc",
+      "editorIndentGuide.background1": "#4b525b55",
+      // // Title Bar
+      // "titleBar.activeBackground": "#272828",
+      // "titleBar.inactiveBackground": "#272828",
+      // // Tab
+      // "editorGroupHeader.tabsBackground": "#1e1f1f",
+      // "tab.activeBackground": "#292929",
+      // "tab.inactiveBackground": "#1e1f1f",
+      // "tab.border": "#1e1f1f",
+      // // Activity Bar
+      // "activityBar.background": "#1c1d1d",
+      // // Side Bar
+      // "sideBar.background": "#202121",
+      // "sideBarSectionHeader.background": "#282929",
+      // "list.activeSelectionBackground": "#2e3030",
+      // "list.inactiveSelectionBackground": "#282929",
+      // Status Bar
+      "statusBar.background": "#242525",
+      "statusBar.noFolderBackground": "#242525",
+      "statusBarItem.remoteBackground": "#242525",
+      // Others
+      "input.background": "#292929",
+      "gitDecoration.ignoredResourceForeground": "#777777",
+      "editorGroup.emptyBackground": "#191a1a",
+    }
+  },
+  "workbench.tree.enableStickyScroll": true,
+  "workbench.startupEditor": "none",
+  "explorer.incrementalNaming": "smart",
+  "files.autoSave": "onFocusChange",
+  "git.enableSmartCommit": true,
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.openRepositoryInParentFolders": "never",
+  "multiCommand.commands": [
+    {
+      "command": "multiCommand.commentLineAndCursorDown",
+      "sequence": ["editor.action.commentLine", "cursorDown"]
+    }
+  ],
+  "html.autoClosingTags": false,
+  "tailwindCSS.colorDecorators": false,
+  "javascript.autoClosingTags": false,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "javascript.referencesCodeLens.enabled": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.referencesCodeLens.enabled": true,
+  "svelte.enable-ts-plugin": true,
+  "go.toolsManagement.autoUpdate": true,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.confirmDelete": false,
+  "githubPullRequests.terminalLinksHandler": "github",
+  "githubPullRequests.pullBranch": "never",
+  "githubPullRequests.pushBranch": "always",
+  "githubPullRequests.pullRequestDescription": "Copilot",
+  "insert-br-tag.enableOnLanguage": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "markdown",
+    "html",
+    "svelte",
+    "vue"
+  ],
+  "insert-br-tag.trailingSlashLanguage": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "html",
+    "svelte",
+    "vue"
+  ],
+  "gitlens.gitCommands.skipConfirmations": [
+    "fetch:command",
+    "stash-push:command",
+    "switch:command",
+    "branch-create:command",
+    "push:command"
+  ],
+  "gitlens.advanced.messages": {
+    "suppressLineUncommittedWarning": true
+  },
+  "gitlens.hovers.currentLine.over": "line",
+  "gitlens.codeLens.authors.enabled": false,
+  "gitlens.codeLens.enabled": false,
+  "markdownlint.config": {
+    "MD041": false,
+    "MD034": false
+  },
+  "markdown.preview.scrollEditorWithPreview": false,
+  "openinmarked.apppath": "/Applications/Setapp/Marked.app",
+  "markdown-pdf.executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "markdown-pdf.mermaidServer": "https://unpkg.com/mermaid@10.4.0/dist/mermaid.js",
+  "claudeCode.selectedModel": "opus",
+  "claudeCode.preferredLocation": "panel",
+  "claudeCode.initialPermissionMode": "acceptEdits",
+  "security.promptForLocalFileProtocolHandling": false,
+  "security.workspace.trust.untrustedFiles": "open",
+  "cursor.composer.shouldChimeAfterChatFinishes": true,
+  "cursor.composer.usageSummaryDisplay": "always",
+  "cursor.cpp.disabledLanguages": [
+    "plaintext"
+  ],
+}
