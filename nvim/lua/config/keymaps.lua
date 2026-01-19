@@ -3,6 +3,9 @@
 -- 基本的なキーマップ
 vim.keymap.set("i", "jk", "<Esc>")
 
+-- F1 ヘルプを無効化
+vim.keymap.set({ "n", "i" }, "<F1>", "<Nop>")
+
 -- Insert モードでの Emacs 風カーソル移動
 vim.keymap.set("i", "<C-a>", "<Home>", { desc = "Move to beginning of line" })
 vim.keymap.set("i", "<C-e>", "<End>", { desc = "Move to end of line" })
