@@ -83,37 +83,6 @@ else
   fi
 fi
 
-# functions ディレクトリのシンボリックリンク
-if [ ! -d ~/.config/fish/functions ]; then
-  mkdir -p ~/.config/fish/functions
-  echo "✅ ディレクトリを作成しました: ~/.config/fish/functions"
-fi
-
-# functions ディレクトリ内のファイルをシンボリックリンク
-for func_file in $(pwd)/fish/functions/*.fish; do
-  if [ -f "$func_file" ]; then
-    func_name=$(basename "$func_file")
-    if [ -e ~/.config/fish/functions/"$func_name" ]; then
-      echo "⏭️ ~/.config/fish/functions/$func_name は既に存在します"
-    else
-      if ln -s "$func_file" ~/.config/fish/functions/"$func_name" 2>/dev/null; then
-        echo "✅ シンボリックリンクを作成しました: ~/.config/fish/functions/$func_name -> $func_file"
-      fi
-    fi
-  fi
-done
-
-# 壊れたシンボリックリンクをクリーンアップ
-for linked_file in ~/.config/fish/functions/*.fish; do
-  if [ -L "$linked_file" ]; then
-    if [ ! -e "$linked_file" ]; then
-      func_name=$(basename "$linked_file")
-      rm "$linked_file"
-      echo "🗑️ 壊れたシンボリックリンクを削除しました: ~/.config/fish/functions/$func_name"
-    fi
-  fi
-done
-
 # Fish 機密環境変数設定のセットアップ
 if [ ! -d ~/.local/fish ]; then
   mkdir -p ~/.local/fish

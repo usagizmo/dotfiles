@@ -1,4 +1,14 @@
 # --------------------
+# Function Path
+# --------------------
+
+# config.fish のシンボリックリンクを解決し、同階層の functions を参照
+# dotfiles の配置場所に依存しない
+set -l config_dir (dirname (realpath (status filename)))
+set -gp fish_function_path $config_dir/functions
+
+
+# --------------------
 # Functions
 # --------------------
 
