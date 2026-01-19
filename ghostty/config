@@ -1,3 +1,6 @@
+# 背景色（暗め）
+background = #1e1f1f
+
 # フォントを読みやすくする
 font-thicken
 
@@ -22,4 +25,7 @@ keybind = shift+super+backslash=new_split:down
 
 # 均等分割（shift+cmd+e）
 keybind = shift+super+e=equalize_splits
+
+# タブを閉じる（shift+cmd+w）
+keybind = super+shift+w=close_tab
 
