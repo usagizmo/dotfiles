@@ -1,14 +1,14 @@
-function git-archive -d "指定コミットの変更ファイルをzipアーカイブ化" -a commit_id
+function git-archive -d "指定コミットから現在までの変更ファイルをzipアーカイブ化" -a commit_id
     # 使用例:
-    #   git-archive           # HEAD の差分をアーカイブ
-    #   git-archive abc1234   # 指定コミットの差分をアーカイブ
-    #   git-archive HEAD~3    # 3つ前のコミットの差分をアーカイブ
+    #   git-archive           # HEAD^ から HEAD までの差分をアーカイブ
+    #   git-archive abc1234   # abc1234 から HEAD までの差分をアーカイブ
+    #   git-archive HEAD~3    # 3つ前のコミットから HEAD までの差分をアーカイブ
 
-    # 引数がなければ HEAD を使用
-    set -l target_commit (test -n "$commit_id" && echo $commit_id || echo "HEAD")
+    # 引数がなければ HEAD^ を使用
+    set -l base_commit (test -n "$commit_id" && echo $commit_id || echo "HEAD^")
 
-    echo "📦 $target_commit の変更ファイルをアーカイブ化しています..."
-    git archive --format=zip --prefix=root/ $target_commit (git diff --diff-filter=d --name-only $target_commit^ $target_commit) -o archive.zip
+    echo "📦 $base_commit から HEAD までの変更ファイルをアーカイブ化しています..."
+    git archive --format=zip --prefix=root/ HEAD (git diff --diff-filter=d --name-only $base_commit HEAD) -o archive.zip
     if test $status -eq 0
         echo "✅ archive.zip を作成しました！"
     else
