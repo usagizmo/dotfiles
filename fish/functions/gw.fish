@@ -1,0 +1,102 @@
+function gw -d "git worktree の操作を簡略化"
+    set -l subcmd $argv[1]
+
+    switch $subcmd
+        case '' list ls
+            git worktree list
+
+        case add
+            # リポジトリのルートを取得
+            set -l current_path (pwd)
+            set -l repo_root $current_path
+
+            # .worktree/{name} 内にいる場合
+            if string match -q "*/.worktree/*" $current_path
+                set repo_root (string replace -r "/.worktree/.*" "" $current_path)
+            # .worktree ディレクトリ内にいる場合
+            else if string match -q "*/.worktree" $current_path
+                set repo_root (dirname $current_path)
+            end
+
+            # 形容詞リスト
+            set -l adjectives agile bold calm cool crisp eager fast keen neat quick sharp smart swift warm wise
+            # 名詞リスト (有名なプログラマー/科学者の名前)
+            set -l nouns dijkstra hopper knuth lovelace ritchie thompson turing wozniak
+
+            # ランダムに選択
+            set -l adj $adjectives[(random 1 (count $adjectives))]
+            set -l noun $nouns[(random 1 (count $nouns))]
+            set -l name "$adj-$noun"
+
+            # worktree を作成
+            echo "🌳 worktree を作成: $name"
+            git worktree add -b $name $repo_root/.worktree/$name
+
+            if test $status -eq 0
+                echo "📂 ディレクトリに移動: $repo_root/.worktree/$name"
+                cd $repo_root/.worktree/$name
+            end
+
+        case remove rm
+            # 現在の worktree を削除
+            set -l current_path (pwd)
+            if not string match -q "*/.worktree/*" $current_path
+                echo "❌ worktree 内ではありません"
+                return 1
+            end
+
+            set -l name (basename $current_path)
+            set -l repo_root (string replace -r "/.worktree/.*" "" $current_path)
+            set -l worktree_path $repo_root/.worktree/$name
+
+            echo "🗑️ worktree を削除: $name"
+            cd $repo_root
+            git worktree remove .worktree/$name
+            git branch -D $name
+
+            # ディレクトリが残っている場合は削除
+            if test -d $worktree_path
+                echo "📁 ディレクトリを削除: $worktree_path"
+                rm -rf $worktree_path
+            end
+
+        case prune
+            echo "🧹 不要な worktree 情報を削除"
+            git worktree prune -v
+
+        case .
+            # main ディレクトリに移動
+            set -l current_path (pwd)
+
+            # .worktree/{name} 内にいる場合
+            if string match -q "*/.worktree/*" $current_path
+                set -l repo_root (string replace -r "/.worktree/.*" "" $current_path)
+                cd $repo_root
+                return
+            end
+
+            # .worktree ディレクトリ内にいる場合
+            if string match -q "*/.worktree" $current_path
+                cd (dirname $current_path)
+                return
+            end
+
+            # すでに main にいる場合
+            echo "📍 すでに main ディレクトリにいます"
+
+        case -h --help
+            echo "使い方: gw [subcommand]"
+            echo ""
+            echo "サブコマンド:"
+            echo "  (なし)       worktree の一覧を表示"
+            echo "  add          新しい worktree を作成して移動"
+            echo "  remove, rm   現在の worktree を削除"
+            echo "  prune        不要な worktree 情報を削除"
+            echo "  .            main ディレクトリに移動"
+
+        case '*'
+            echo "❌ 不明なサブコマンド: $subcmd"
+            echo "使い方: gw -h"
+            return 1
+    end
+end
