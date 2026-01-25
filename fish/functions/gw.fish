@@ -6,6 +6,16 @@ function gw -d "git worktree の操作を簡略化"
             git worktree list
 
         case add
+            # パラメータチェック
+            if test (count $argv) -lt 2
+                echo "❌ パラメータが必要です"
+                echo "使い方: gw add <feature-name>"
+                return 1
+            end
+
+            set -l feature_name $argv[2]
+            set -l branch_name "feat/$feature_name"
+
             # リポジトリのルートを取得
             set -l current_path (pwd)
             set -l repo_root $current_path
@@ -18,23 +28,13 @@ function gw -d "git worktree の操作を簡略化"
                 set repo_root (dirname $current_path)
             end
 
-            # 形容詞リスト
-            set -l adjectives agile bold calm cool crisp eager fast keen neat quick sharp smart swift warm wise
-            # 名詞リスト (有名なプログラマー/科学者の名前)
-            set -l nouns dijkstra hopper knuth lovelace ritchie thompson turing wozniak
-
-            # ランダムに選択
-            set -l adj $adjectives[(random 1 (count $adjectives))]
-            set -l noun $nouns[(random 1 (count $nouns))]
-            set -l name "$adj-$noun"
-
             # worktree を作成
-            echo "🌳 worktree を作成: $name"
-            git worktree add -b $name $repo_root/.worktree/$name
+            echo "🌳 worktree を作成: $branch_name"
+            git worktree add -b $branch_name $repo_root/.worktree/$feature_name
 
             if test $status -eq 0
-                echo "📂 ディレクトリに移動: $repo_root/.worktree/$name"
-                cd $repo_root/.worktree/$name
+                echo "📂 ディレクトリに移動: $repo_root/.worktree/$feature_name"
+                cd $repo_root/.worktree/$feature_name
             end
 
         case remove rm
@@ -45,14 +45,15 @@ function gw -d "git worktree の操作を簡略化"
                 return 1
             end
 
-            set -l name (basename $current_path)
+            set -l feature_name (basename $current_path)
+            set -l branch_name "feat/$feature_name"
             set -l repo_root (string replace -r "/.worktree/.*" "" $current_path)
-            set -l worktree_path $repo_root/.worktree/$name
+            set -l worktree_path $repo_root/.worktree/$feature_name
 
-            echo "🗑️ worktree を削除: $name"
+            echo "🗑️ worktree を削除: $branch_name"
             cd $repo_root
-            git worktree remove .worktree/$name
-            git branch -D $name
+            git worktree remove .worktree/$feature_name
+            git branch -D $branch_name
 
             # ディレクトリが残っている場合は削除
             if test -d $worktree_path
@@ -88,11 +89,11 @@ function gw -d "git worktree の操作を簡略化"
             echo "使い方: gw [subcommand]"
             echo ""
             echo "サブコマンド:"
-            echo "  (なし)       worktree の一覧を表示"
-            echo "  add          新しい worktree を作成して移動"
-            echo "  remove, rm   現在の worktree を削除"
-            echo "  prune        不要な worktree 情報を削除"
-            echo "  .            main ディレクトリに移動"
+            echo "  (なし)                worktree の一覧を表示"
+            echo "  add <feature-name>    新しい worktree を作成して移動 (ブランチ名: feat/<feature-name>)"
+            echo "  remove, rm            現在の worktree を削除"
+            echo "  prune                 不要な worktree 情報を削除"
+            echo "  .                     main ディレクトリに移動"
 
         case '*'
             echo "❌ 不明なサブコマンド: $subcmd"
