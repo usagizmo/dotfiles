@@ -35,6 +35,32 @@ function gw -d "git worktree の操作を簡略化"
             if test $status -eq 0
                 echo "📂 ディレクトリに移動: $repo_root/.worktree/$feature_name"
                 cd $repo_root/.worktree/$feature_name
+
+                # 初期化スクリプトの実行
+                set -l init_script $repo_root/.gw-init
+                if test -f $init_script
+                    echo ""
+                    echo "📜 初期化スクリプトを検出: .gw-init"
+                    echo "────────────────────────────────"
+                    cat $init_script
+                    echo "────────────────────────────────"
+                    echo ""
+                    read -P "▶ 実行しますか? [Y/n] " confirm
+                    if test -z "$confirm" -o "$confirm" = "Y" -o "$confirm" = "y"
+                        echo "🚀 初期化スクリプトを実行中..."
+                        echo ""
+                        bash $init_script
+                        set -l exit_code $status
+                        echo ""
+                        if test $exit_code -eq 0
+                            echo "✅ 初期化完了"
+                        else
+                            echo "⚠️ 初期化スクリプトが失敗しました (終了コード: $exit_code)"
+                        end
+                    else
+                        echo "⏭️ スキップしました"
+                    end
+                end
             end
 
         case remove rm
@@ -91,6 +117,7 @@ function gw -d "git worktree の操作を簡略化"
             echo "サブコマンド:"
             echo "  (なし)                worktree の一覧を表示"
             echo "  add <feature-name>    新しい worktree を作成して移動 (ブランチ名: feat/<feature-name>)"
+            echo "                        (.gw-init があれば実行を確認)"
             echo "  remove, rm            現在の worktree を削除"
             echo "  prune                 不要な worktree 情報を削除"
             echo "  .                     main ディレクトリに移動"
