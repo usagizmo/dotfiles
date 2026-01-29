@@ -134,6 +134,7 @@ alias gp! 'git push --force'
 
 alias rm 'safe-rm'
 alias br 'bun run'
+alias c 'claude'
 alias sm 'open -a Sublime\ Merge'
 alias st 'open -a Sublime\ Text'
 alias yolo="claude --dangerously-skip-permissions"
