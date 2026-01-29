@@ -77,14 +77,35 @@ function gw -d "git worktree の操作を簡略化"
             set -l worktree_path $repo_root/.worktree/$feature_name
 
             echo "🗑️ worktree を削除: $branch_name"
-            cd $repo_root
-            git worktree remove .worktree/$feature_name
-            git branch -D $branch_name
+            read -P "削除しますか? [Y/n] " confirm
 
-            # ディレクトリが残っている場合は削除
-            if test -d $worktree_path
-                echo "📁 ディレクトリを削除: $worktree_path"
-                rm -rf $worktree_path
+            if test -z "$confirm" -o "$confirm" = "Y" -o "$confirm" = "y"
+                # リポジトリルートに移動
+                cd $repo_root
+
+                # バックグラウンドで削除処理を実行
+                nohup fish -c "
+                    cd '$repo_root'
+
+                    # worktree を削除
+                    if not git worktree remove '$worktree_path'
+                        osascript -e 'display notification \"worktree の削除に失敗しました\" with title \"gw rm\" sound name \"Basso\"'
+                        exit 1
+                    end
+
+                    # ブランチを削除
+                    if not git branch -D '$branch_name'
+                        osascript -e 'display notification \"ブランチの削除に失敗しました\" with title \"gw rm\" sound name \"Basso\"'
+                        exit 1
+                    end
+
+                    # ディレクトリを削除
+                    test -d '$worktree_path' && rm -rf '$worktree_path'
+                " >/dev/null 2>&1 &
+
+                echo "🔄 バックグラウンドで削除中... (タブを閉じてもOKです)"
+            else
+                echo "⏭️ キャンセルしました"
             end
 
         case prune
