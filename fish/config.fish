@@ -138,3 +138,8 @@ alias sm 'open -a Sublime\ Merge'
 alias st 'open -a Sublime\ Text'
 alias yolo="claude --dangerously-skip-permissions"
 alias keka="/Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a"
+
+# Added by LM Studio CLI (lms)
+set -gx PATH $PATH /Users/usagizmo/.lmstudio/bin
+# End of LM Studio CLI section
+
