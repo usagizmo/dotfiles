@@ -40,25 +40,15 @@ function gw -d "git worktree の操作を簡略化"
                 set -l init_script $repo_root/.gw-init
                 if test -f $init_script
                     echo ""
-                    echo "📜 初期化スクリプトを検出: .gw-init"
-                    echo "────────────────────────────────"
-                    cat $init_script
-                    echo "────────────────────────────────"
+                    echo "🚀 初期化スクリプトを実行中: .gw-init"
                     echo ""
-                    read -P "▶ 実行しますか? [Y/n] " confirm
-                    if test -z "$confirm" -o "$confirm" = "Y" -o "$confirm" = "y"
-                        echo "🚀 初期化スクリプトを実行中..."
-                        echo ""
-                        bash $init_script
-                        set -l exit_code $status
-                        echo ""
-                        if test $exit_code -eq 0
-                            echo "✅ 初期化完了"
-                        else
-                            echo "⚠️ 初期化スクリプトが失敗しました (終了コード: $exit_code)"
-                        end
+                    bash $init_script
+                    set -l exit_code $status
+                    echo ""
+                    if test $exit_code -eq 0
+                        echo "✅ 初期化完了"
                     else
-                        echo "⏭️ スキップしました"
+                        echo "⚠️ 初期化スクリプトが失敗しました (終了コード: $exit_code)"
                     end
                 end
             end
