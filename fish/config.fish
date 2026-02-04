@@ -123,10 +123,6 @@ alias gm 'git merge'
 # fetch/pull/push
 alias gf 'git fetch'
 alias gf! 'git fetch --prune'
-function gl
-    git fetch --prune
-    and git merge --ff-only @{u} $argv
-end
 alias gp 'git push'
 alias gp! 'git push --force'
 
