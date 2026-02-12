@@ -335,8 +335,20 @@
     "command": "workbench.action.splitEditorDown"
   },
   {
-    "key": "ctrl+cmd+e",
+    "key": "shift+cmd+e",
+    "command": "-workbench.view.explorer"
+  },
+  {
+    "key": "shift+cmd+e",
     "command": "workbench.action.evenEditorWidths"
+  },
+  {
+    "key": "ctrl+cmd+e",
+    "command": "-workbench.action.evenEditorWidths"
+  },
+  {
+    "key": "ctrl+cmd+e",
+    "command": "workbench.view.explorer"
   },
   {
     "key": "ctrl+q h",
