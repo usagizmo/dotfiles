@@ -74,11 +74,11 @@ function gw -d "git worktree の操作を簡略化"
                 cd $repo_root
 
                 # バックグラウンドで削除処理を実行
-                nohup fish -c "
+                fish -c "
                     cd '$repo_root'
 
-                    # worktree を削除
-                    if not git worktree remove '$worktree_path'
+                    # worktree を削除（未コミットの変更があっても強制削除）
+                    if not git worktree remove --force '$worktree_path'
                         osascript -e 'display notification \"worktree の削除に失敗しました\" with title \"gw rm\" sound name \"Basso\"'
                         exit 1
                     end
@@ -92,6 +92,7 @@ function gw -d "git worktree の操作を簡略化"
                     # ディレクトリを削除
                     test -d '$worktree_path' && rm -rf '$worktree_path'
                 " >/dev/null 2>&1 &
+                disown
 
                 echo "🔄 バックグラウンドで削除中... (タブを閉じてもOKです)"
             else
