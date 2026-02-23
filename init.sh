@@ -1,6 +1,20 @@
 #!/bin/bash
 
 # ======================
+# 🐙 GitHub Copilot 設定のセットアップ
+# ======================
+
+# .copilot ディレクトリのシンボリックリンク
+if [ -e ~/.copilot ]; then
+  echo "⏭️ ~/.copilot は既に存在します"
+else
+  if ln -s "$(pwd)/copilot" ~/.copilot 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.copilot -> $(pwd)/copilot"
+  fi
+fi
+
+
+# ======================
 # 🤖 Claude 設定のセットアップ
 # ======================
 
