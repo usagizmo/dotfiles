@@ -1,8 +1,5 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
-  },
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
@@ -21,6 +18,17 @@
   },
   "model": "opusplan",
   "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bunx tsc --noEmit 2>&1 | head -20"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",
@@ -30,7 +38,7 @@
             "command": "afplay /System/Library/Sounds/Purr.aiff"
           }
         ]
-      }
+    }
     ]
   },
   "statusLine": {
@@ -38,7 +46,8 @@
     "command": "bunx -y @owloops/claude-powerline@latest --style=powerline"
   },
   "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true
   },
   "language": "Japanese",
   "alwaysThinkingEnabled": true
