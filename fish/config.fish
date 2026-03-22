@@ -56,18 +56,8 @@ zoxide init fish | source
 # Homebrew
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# asdf の設定
-if test -z $ASDF_DATA_DIR
-    set _asdf_shims "$HOME/.asdf/shims"
-else
-    set _asdf_shims "$ASDF_DATA_DIR/shims"
-end
-
-# fish_add_path（Fish 3.2で追加）はPATHの順序が変わる可能性があるため使用しない
-if not contains $_asdf_shims $PATH
-    set -gx --prepend PATH $_asdf_shims
-end
-set --erase _asdf_shims
+# mise (ランタイムバージョン管理)
+mise activate fish | source
 
 
 # --------------------
@@ -139,7 +129,6 @@ alias st 'open -a Sublime\ Text'
 alias yolo="claude --dangerously-skip-permissions"
 alias keka="/Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a"
 
-# Added by LM Studio CLI (lms)
-set -gx PATH $PATH /Users/usagizmo/.lmstudio/bin
-# End of LM Studio CLI section
+# LM Studio CLI
+fish_add_path "$HOME/.lmstudio/bin"
 
