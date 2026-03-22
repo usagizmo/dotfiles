@@ -79,6 +79,36 @@ fi
 
 
 # ======================
+# 🔧 mise (ランタイムバージョン管理) のセットアップ
+# ======================
+
+# mise設定ディレクトリ作成
+if [ ! -d ~/.config/mise ]; then
+  mkdir -p ~/.config/mise
+  echo "✅ ディレクトリを作成しました: ~/.config/mise"
+fi
+
+# config.toml のシンボリックリンク
+if [ -e ~/.config/mise/config.toml ]; then
+  echo "⏭️ ~/.config/mise/config.toml は既に存在します"
+else
+  if ln -s "$(pwd)/mise/config.toml" ~/.config/mise/config.toml 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.config/mise/config.toml -> $(pwd)/mise/config.toml"
+  fi
+fi
+
+# ツールのインストール
+if [ -x "$(command -v mise)" ]; then
+  mise trust "$(pwd)/mise/config.toml"
+  echo "📦 mise でツールをインストールしています..."
+  mise install
+  echo "✅ mise のツールをインストールしました"
+else
+  echo "⚠️ mise がインストールされていません。brew install mise を実行してください"
+fi
+
+
+# ======================
 # 🐠 Fish 設定のセットアップ
 # ======================
 
