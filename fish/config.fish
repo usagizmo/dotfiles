@@ -127,8 +127,9 @@ abbr -a gp! git push --force
 abbr -a rm safe-rm
 abbr -a br bun run
 abbr -a c claude
-abbr -a sm open -a Sublime\ Merge
-abbr -a st open -a Sublime\ Text
+abbr -a cur cursor
+abbr -a sm smerge
+abbr -a st subl
 abbr -a yolo claude --dangerously-skip-permissions
 abbr -a keka /Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a
 
