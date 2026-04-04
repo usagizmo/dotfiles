@@ -73,62 +73,62 @@ fish_add_path "$HOME/.cargo/bin"
 # Bun
 fish_add_path "$HOME/.bun/bin"
 
-
-# --------------------
-# Aliases - ディレクトリ移動
-# --------------------
-
-alias cdd 'cd ~/Downloads'
-alias cdc 'cd ~/.config'
+# LM Studio CLI
+fish_add_path "$HOME/.lmstudio/bin"
 
 
 # --------------------
-# Aliases - Git操作
+# Abbreviations - ディレクトリ移動
+# --------------------
+
+abbr -a cdd cd ~/Downloads
+abbr -a cdc cd ~/.config
+
+
+# --------------------
+# Abbreviations - Git操作
 # --------------------
 
 # 基本コマンド
-alias g 'git'
-alias gst 'git status'
-alias gsh 'git show HEAD'
-alias glog "git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all"
+abbr -a g git
+abbr -a gst git status
+abbr -a gsh git show HEAD
+abbr -a glog "git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all"
 
 # diff
-alias gd 'git diff'
-alias gdc 'git diff --cached'
+abbr -a gd git diff
+abbr -a gdc git diff --cached
 
 # add
-alias ga 'git add'
-alias gaa 'git add --all'
+abbr -a ga git add
+abbr -a gaa git add --all
 
 # commit
-alias gc 'git commit'
-alias gcm 'git commit -m'
-alias gca 'git commit --amend'
+abbr -a gc git commit
+abbr -a gcm git commit -m
+abbr -a gca git commit --amend
 
 # branch/checkout/merge
-alias gb 'git branch'
-alias gco 'git checkout'
-alias gm 'git merge'
+abbr -a gb git branch
+abbr -a gco git checkout
+abbr -a gm git merge
 
 # fetch/pull/push
-alias gf 'git fetch'
-alias gf! 'git fetch --prune'
-alias gp 'git push'
-alias gp! 'git push --force'
+abbr -a gf git fetch
+abbr -a gf! git fetch --prune
+abbr -a gp git push
+abbr -a gp! git push --force
 
 
 # --------------------
-# Aliases - アプリケーション
+# Abbreviations - アプリケーション
 # --------------------
 
-alias rm 'safe-rm'
-alias br 'bun run'
-alias c 'claude'
-alias sm 'open -a Sublime\ Merge'
-alias st 'open -a Sublime\ Text'
-alias yolo="claude --dangerously-skip-permissions"
-alias keka="/Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a"
-
-# LM Studio CLI
-fish_add_path "$HOME/.lmstudio/bin"
+abbr -a rm safe-rm
+abbr -a br bun run
+abbr -a c claude
+abbr -a sm open -a Sublime\ Merge
+abbr -a st open -a Sublime\ Text
+abbr -a yolo claude --dangerously-skip-permissions
+abbr -a keka /Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a
 
