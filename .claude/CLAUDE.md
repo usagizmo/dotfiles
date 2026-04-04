@@ -38,9 +38,9 @@
 ### コミット例
 
 ```
-🐟 [fish] claude コマンドの短縮エイリアス c を追加
+🐟 [fish] claude コマンドの短縮 abbreviation c を追加
 
-- `alias c 'claude'` を追加し、より素早く Claude を起動できるように改善
+- `abbr -a c claude` を追加し、より素早く Claude を起動できるように改善
 ```
 
 ```
