@@ -130,6 +130,6 @@ abbr -a c claude
 abbr -a cur cursor
 abbr -a sm smerge
 abbr -a st subl
-abbr -a yolo claude --dangerously-skip-permissions
+abbr -a ol ollama
 abbr -a keka /Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a
 
