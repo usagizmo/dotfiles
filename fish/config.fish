@@ -40,6 +40,9 @@ end
 # エディタ設定
 set -gx EDITOR nvim
 
+# Cargo の target ディレクトリを共通化（プロジェクト／worktree 跨ぎで再利用）
+set -gx CARGO_TARGET_DIR "$HOME/.cache/cargo-target"
+
 # 機密情報は別ファイルで管理
 if test -f ~/.local/fish/env.fish
   source ~/.local/fish/env.fish
