@@ -103,8 +103,6 @@
   },
   "language": "Japanese",
   "alwaysThinkingEnabled": true,
-  "effortLevel": "high",
   "autoMemoryEnabled": false,
-  "verbose": true,
   "skipAutoPermissionPrompt": true
 }
