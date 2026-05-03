@@ -136,3 +136,6 @@ abbr -a st subl
 abbr -a ol ollama
 abbr -a keka /Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a
 
+
+# opencode
+fish_add_path /Users/usagizmo/.opencode/bin
