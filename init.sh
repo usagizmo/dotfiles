@@ -56,6 +56,20 @@ fi
 
 
 # ======================
+# 🤖 Agents 設定のセットアップ
+# ======================
+
+# .agents ディレクトリのシンボリックリンク
+if [ -e ~/.agents ]; then
+  echo "⏭️ ~/.agents は既に存在します"
+else
+  if ln -s "$(pwd)/agents" ~/.agents 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.agents -> $(pwd)/agents"
+  fi
+fi
+
+
+# ======================
 # 🔧 Tmux 設定のセットアップ
 # ======================
 
