@@ -138,4 +138,5 @@
     "plaintext"
   ],
   "update.mode": "silentlyApplyOnQuit",
+  "window.autoDetectColorScheme": false,
 }
