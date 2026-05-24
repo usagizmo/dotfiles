@@ -22,6 +22,8 @@
 | 🤖 | `[claude]` | Claude Code 設定（スキル、ルール、CLAUDE.md 等） |
 | 🤖 | `[codex]` | Codex 関連設定 |
 | 🤖 | `[agents]` | `~/.agents` 配下の skill 管理（`.skill-lock.json` 等） |
+| 🤖 | `[cursor]` | Cursor CLI / Agent 設定（`~/.cursor` 配下） |
+| 🖥️ | `[cursor-app]` | Cursor IDE 設定（`settings.json` / `keybindings.json`） |
 | 🐙 | `[copilot]` | GitHub Copilot 設定 |
 | 📝 | `[nvim]` | Neovim 設定 |
 | 👻 | `[ghostty]` | Ghostty ターミナル設定 |
