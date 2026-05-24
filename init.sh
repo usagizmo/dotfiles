@@ -70,6 +70,20 @@ fi
 
 
 # ======================
+# 🤖 Cursor CLI / Agent 設定のセットアップ
+# ======================
+
+# .cursor ディレクトリのシンボリックリンク
+if [ -e ~/.cursor ]; then
+  echo "⏭️ ~/.cursor は既に存在します"
+else
+  if ln -s "$(pwd)/cursor" ~/.cursor 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.cursor -> $(pwd)/cursor"
+  fi
+fi
+
+
+# ======================
 # 🔧 Tmux 設定のセットアップ
 # ======================
 
@@ -287,7 +301,7 @@ fi
 
 
 # ======================
-# 🖥️ Cursor 設定のセットアップ
+# 🖥️ Cursor IDE 設定のセットアップ
 # ======================
 
 # Cursor設定ディレクトリ
@@ -303,8 +317,8 @@ if [ -d "$CURSOR_USER_DIR" ]; then
       rm "$CURSOR_USER_DIR/settings.json"
       echo "🗑️ 既存のファイルを削除しました: $CURSOR_USER_DIR/settings.json"
     fi
-    if ln -s "$(pwd)/cursor/settings.json" "$CURSOR_USER_DIR/settings.json" 2>/dev/null; then
-      echo "✅ シンボリックリンクを作成しました: $CURSOR_USER_DIR/settings.json -> $(pwd)/cursor/settings.json"
+    if ln -s "$(pwd)/cursor-app/settings.json" "$CURSOR_USER_DIR/settings.json" 2>/dev/null; then
+      echo "✅ シンボリックリンクを作成しました: $CURSOR_USER_DIR/settings.json -> $(pwd)/cursor-app/settings.json"
     fi
   fi
 
@@ -316,12 +330,12 @@ if [ -d "$CURSOR_USER_DIR" ]; then
       rm "$CURSOR_USER_DIR/keybindings.json"
       echo "🗑️ 既存のファイルを削除しました: $CURSOR_USER_DIR/keybindings.json"
     fi
-    if ln -s "$(pwd)/cursor/keybindings.json" "$CURSOR_USER_DIR/keybindings.json" 2>/dev/null; then
-      echo "✅ シンボリックリンクを作成しました: $CURSOR_USER_DIR/keybindings.json -> $(pwd)/cursor/keybindings.json"
+    if ln -s "$(pwd)/cursor-app/keybindings.json" "$CURSOR_USER_DIR/keybindings.json" 2>/dev/null; then
+      echo "✅ シンボリックリンクを作成しました: $CURSOR_USER_DIR/keybindings.json -> $(pwd)/cursor-app/keybindings.json"
     fi
   fi
 else
-  echo "⚠️ Cursor がインストールされていません。Cursor 設定のセットアップをスキップします"
+  echo "⚠️ Cursor がインストールされていません。Cursor IDE 設定のセットアップをスキップします"
 fi
 
 
