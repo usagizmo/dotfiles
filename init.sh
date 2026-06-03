@@ -84,6 +84,26 @@ fi
 
 
 # ======================
+# 🤖 Devin CLI 設定のセットアップ
+# ======================
+
+# Devin 設定ディレクトリ作成
+if [ ! -d ~/.config/devin ]; then
+  mkdir -p ~/.config/devin
+  echo "✅ ディレクトリを作成しました: ~/.config/devin"
+fi
+
+# AGENTS.md（グローバルルール）のシンボリックリンク
+if [ -e ~/.config/devin/AGENTS.md ]; then
+  echo "⏭️ ~/.config/devin/AGENTS.md は既に存在します"
+else
+  if ln -s "$(pwd)/devin/AGENTS.md" ~/.config/devin/AGENTS.md 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: ~/.config/devin/AGENTS.md -> $(pwd)/devin/AGENTS.md"
+  fi
+fi
+
+
+# ======================
 # 🔧 Tmux 設定のセットアップ
 # ======================
 
