@@ -127,6 +127,7 @@ abbr -a gp! git push --force
 abbr -a rm safe-rm
 abbr -a br bun run
 abbr -a c claude
+abbr -a d devin
 abbr -a cur cursor
 abbr -a sm smerge
 abbr -a st subl
@@ -136,3 +137,6 @@ abbr -a keka /Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a
 
 # opencode
 fish_add_path $HOME/.opencode/bin
+
+# devin
+fish_add_path $HOME/.codeium/windsurf/bin
