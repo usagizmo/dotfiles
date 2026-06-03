@@ -21,6 +21,7 @@
 | 🐚 | `[zsh]` | Zsh シェル設定 |
 | 🤖 | `[claude]` | Claude Code 設定（スキル、ルール、CLAUDE.md 等） |
 | 🤖 | `[codex]` | Codex 関連設定 |
+| 🤖 | `[devin]` | Devin CLI 設定（`~/.config/devin` 配下） |
 | 🤖 | `[agents]` | `~/.agents` 配下の skill 管理（`.skill-lock.json` 等） |
 | 🤖 | `[cursor]` | Cursor CLI / Agent 設定（`~/.cursor` 配下） |
 | 🖥️ | `[cursor-app]` | Cursor IDE 設定（`settings.json` / `keybindings.json`） |
