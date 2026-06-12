@@ -1,120 +1,132 @@
 #!/bin/bash
 
 # ======================
+# 🔧 ヘルパー関数
+# ======================
+
+# dst が無ければ src へのシンボリックリンクを作成する。
+# 既存 symlink がこの dotfiles repo 内を指している場合は、移動後の src へ更新する。
+link_if_absent() {
+  local src=$1 dst=$2 current repo_root
+  repo_root="$(pwd)"
+  if [ -L "$dst" ]; then
+    current="$(readlink "$dst")"
+    if [ "$current" = "$src" ]; then
+      echo "⏭️ $dst のシンボリックリンクは既に存在します"
+    elif [ "${current#$repo_root/}" != "$current" ]; then
+      ln -sfn "$src" "$dst"
+      echo "🔁 シンボリックリンクを更新しました: $dst -> $src"
+    else
+      echo "⏭️ $dst は別の場所を指しているためスキップします: $current"
+    fi
+  elif [ -e "$dst" ]; then
+    echo "⏭️ $dst は既に存在します"
+  elif ln -s "$src" "$dst" 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: $dst -> $src"
+  fi
+}
+
+# リポジトリ内に相対パス target へのシンボリックリンクを作成する。
+# 既存 symlink が別 target を向いている場合は更新する。
+link_repo_relative() {
+  local target=$1 path=$2 current
+  if [ -L "$path" ]; then
+    current="$(readlink "$path")"
+    if [ "$current" = "$target" ]; then
+      echo "⏭️ $path のシンボリックリンクは既に存在します"
+    else
+      ln -sfn "$target" "$path"
+      echo "🔁 シンボリックリンクを更新しました: $path -> $target"
+    fi
+  elif [ -e "$path" ]; then
+    echo "⏭️ $path は既に存在します"
+  elif ln -s "$target" "$path" 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: $path -> $target"
+  fi
+}
+
+# 既存の実ファイルを削除して src へのシンボリックリンクに置き換える
+link_replace() {
+  local src=$1 dst=$2 current
+  if [ -L "$dst" ]; then
+    current="$(readlink "$dst")"
+    if [ "$current" = "$src" ]; then
+      echo "⏭️ $dst は既にシンボリックリンクです"
+    else
+      ln -sfn "$src" "$dst"
+      echo "🔁 シンボリックリンクを更新しました: $dst -> $src"
+    fi
+    return
+  fi
+  if [ -e "$dst" ]; then
+    rm "$dst"
+    echo "🗑️ 既存のファイルを削除しました: $dst"
+  fi
+  if ln -s "$src" "$dst" 2>/dev/null; then
+    echo "✅ シンボリックリンクを作成しました: $dst -> $src"
+  fi
+}
+
+# ディレクトリが無ければ作成する
+ensure_dir() {
+  if [ ! -d "$1" ]; then
+    mkdir -p "$1"
+    echo "✅ ディレクトリを作成しました: $1"
+  fi
+}
+
+
+# ======================
 # 🐙 GitHub Copilot 設定のセットアップ
 # ======================
 
-# .copilot ディレクトリのシンボリックリンク
-if [ -e ~/.copilot ]; then
-  echo "⏭️ ~/.copilot は既に存在します"
-else
-  if ln -s "$(pwd)/copilot" ~/.copilot 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.copilot -> $(pwd)/copilot"
-  fi
-fi
+link_if_absent "$(pwd)/harnesses/copilot" ~/.copilot
 
 
 # ======================
 # 🤖 Claude 設定のセットアップ
 # ======================
 
-# .claude ディレクトリのシンボリックリンク
-if [ -e ~/.claude ]; then
-  echo "⏭️ ~/.claude は既に存在します"
-else
-  if ln -s "$(pwd)/claude" ~/.claude 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.claude -> $(pwd)/claude"
-  fi
-fi
+link_repo_relative ../../agents/AGENTS.md "$(pwd)/harnesses/claude/CLAUDE.md"
+link_if_absent "$(pwd)/harnesses/claude" ~/.claude
+link_repo_relative ../../agents/rules "$(pwd)/harnesses/claude/rules"
 
 
 # ======================
 # 🤖 Codex 設定のセットアップ
 # ======================
 
-# .codex ディレクトリのシンボリックリンク
-if [ -e ~/.codex ]; then
-  echo "⏭️ ~/.codex は既に存在します"
-else
-  if [ -d "$(pwd)/codex" ]; then
-    if ln -s "$(pwd)/codex" ~/.codex 2>/dev/null; then
-      echo "✅ シンボリックリンクを作成しました: ~/.codex -> $(pwd)/codex"
-    fi
-  else
-    echo "⚠️ codex ディレクトリが見つかりません。後で再実行してください"
-  fi
-fi
-
-# codex/AGENTS.md のシンボリックリンク
-if [ -L "$(pwd)/codex/AGENTS.md" ]; then
-  echo "⏭️ ~/.codex/AGENTS.md のシンボリックリンクは既に存在します"
-else
-  if ln -s ../claude/CLAUDE.md "$(pwd)/codex/AGENTS.md" 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.codex/AGENTS.md -> ../claude/CLAUDE.md"
-  fi
-fi
+link_if_absent "$(pwd)/harnesses/codex" ~/.codex
+link_repo_relative ../../agents/AGENTS.md "$(pwd)/harnesses/codex/AGENTS.md"
 
 
 # ======================
 # 🤖 Agents 設定のセットアップ
 # ======================
 
-# .agents ディレクトリのシンボリックリンク
-if [ -e ~/.agents ]; then
-  echo "⏭️ ~/.agents は既に存在します"
-else
-  if ln -s "$(pwd)/agents" ~/.agents 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.agents -> $(pwd)/agents"
-  fi
-fi
+link_if_absent "$(pwd)/agents" ~/.agents
 
 
 # ======================
 # 🤖 Cursor CLI / Agent 設定のセットアップ
 # ======================
 
-# .cursor ディレクトリのシンボリックリンク
-if [ -e ~/.cursor ]; then
-  echo "⏭️ ~/.cursor は既に存在します"
-else
-  if ln -s "$(pwd)/cursor" ~/.cursor 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.cursor -> $(pwd)/cursor"
-  fi
-fi
+link_if_absent "$(pwd)/harnesses/cursor" ~/.cursor
 
 
 # ======================
 # 🤖 Devin CLI 設定のセットアップ
 # ======================
 
-# Devin 設定ディレクトリ作成
-if [ ! -d ~/.config/devin ]; then
-  mkdir -p ~/.config/devin
-  echo "✅ ディレクトリを作成しました: ~/.config/devin"
-fi
-
-# AGENTS.md（グローバルルール）のシンボリックリンク
-if [ -e ~/.config/devin/AGENTS.md ]; then
-  echo "⏭️ ~/.config/devin/AGENTS.md は既に存在します"
-else
-  if ln -s "$(pwd)/devin/AGENTS.md" ~/.config/devin/AGENTS.md 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.config/devin/AGENTS.md -> $(pwd)/devin/AGENTS.md"
-  fi
-fi
+ensure_dir ~/.config/devin
+link_if_absent "$(pwd)/harnesses/devin/AGENTS.md" ~/.config/devin/AGENTS.md
 
 
 # ======================
 # 🔧 Tmux 設定のセットアップ
 # ======================
 
-# .tmux.conf のシンボリックリンク作成
-if [ -e ~/.tmux.conf ]; then
-  echo "⏭️ ~/.tmux.conf は既に存在します"
-else
-  if ln -s "$(pwd)/tmux/.tmux.conf" ~/.tmux.conf 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.tmux.conf -> $(pwd)/tmux/.tmux.conf"
-  fi
-fi
+link_if_absent "$(pwd)/tmux/.tmux.conf" ~/.tmux.conf
 
 # tmux plugin manager (tpm) のセットアップ
 if [ ! -d ~/.tmux/plugins/tpm ]; then
@@ -130,20 +142,8 @@ fi
 # 🔧 mise (ランタイムバージョン管理) のセットアップ
 # ======================
 
-# mise設定ディレクトリ作成
-if [ ! -d ~/.config/mise ]; then
-  mkdir -p ~/.config/mise
-  echo "✅ ディレクトリを作成しました: ~/.config/mise"
-fi
-
-# config.toml のシンボリックリンク
-if [ -e ~/.config/mise/config.toml ]; then
-  echo "⏭️ ~/.config/mise/config.toml は既に存在します"
-else
-  if ln -s "$(pwd)/mise/config.toml" ~/.config/mise/config.toml 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.config/mise/config.toml -> $(pwd)/mise/config.toml"
-  fi
-fi
+ensure_dir ~/.config/mise
+link_if_absent "$(pwd)/mise/config.toml" ~/.config/mise/config.toml
 
 # ツールのインストール
 if [ -x "$(command -v mise)" ]; then
@@ -160,26 +160,11 @@ fi
 # 🐠 Fish 設定のセットアップ
 # ======================
 
-# Fish設定ディレクトリ作成
-if [ ! -d ~/.config/fish ]; then
-  mkdir -p ~/.config/fish
-  echo "✅ ディレクトリを作成しました: ~/.config/fish"
-fi
-
-# config.fish のシンボリックリンク
-if [ -e ~/.config/fish/config.fish ]; then
-  echo "⏭️ ~/.config/fish/config.fish は既に存在します"
-else
-  if ln -s "$(pwd)/fish/config.fish" ~/.config/fish/config.fish 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.config/fish/config.fish -> $(pwd)/fish/config.fish"
-  fi
-fi
+ensure_dir ~/.config/fish
+link_if_absent "$(pwd)/fish/config.fish" ~/.config/fish/config.fish
 
 # Fish 機密環境変数設定のセットアップ
-if [ ! -d ~/.local/fish ]; then
-  mkdir -p ~/.local/fish
-  echo "✅ ディレクトリを作成しました: ~/.local/fish"
-fi
+ensure_dir ~/.local/fish
 
 # env.fish のコピー（既存ファイルがある場合は上書きしない）
 if [ -e ~/.local/fish/env.fish ]; then
@@ -219,58 +204,18 @@ fi
 # 📝 Neovim 設定のセットアップ
 # ======================
 
-# Neovim設定ディレクトリ作成
-if [ ! -d ~/.config/nvim ]; then
-  mkdir -p ~/.config/nvim
-  echo "✅ ディレクトリを作成しました: ~/.config/nvim"
-fi
-
-# init.lua のシンボリックリンク
-if [ -e ~/.config/nvim/init.lua ]; then
-  echo "⏭️ ~/.config/nvim/init.lua は既に存在します"
-else
-  if ln -s "$(pwd)/nvim/init.lua" ~/.config/nvim/init.lua 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.config/nvim/init.lua -> $(pwd)/nvim/init.lua"
-  fi
-fi
-
-# lua ディレクトリのシンボリックリンク
-if [ -e ~/.config/nvim/lua ]; then
-  echo "⏭️ ~/.config/nvim/lua は既に存在します"
-else
-  if ln -s "$(pwd)/nvim/lua" ~/.config/nvim/lua 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.config/nvim/lua -> $(pwd)/nvim/lua"
-  fi
-fi
+ensure_dir ~/.config/nvim
+link_if_absent "$(pwd)/nvim/init.lua" ~/.config/nvim/init.lua
+link_if_absent "$(pwd)/nvim/lua" ~/.config/nvim/lua
 
 
 # ======================
 # 📁 Yazi 設定のセットアップ
 # ======================
 
-# Yazi設定ディレクトリ作成
-if [ ! -d ~/.config/yazi ]; then
-  mkdir -p ~/.config/yazi
-  echo "✅ ディレクトリを作成しました: ~/.config/yazi"
-fi
-
-# yazi.toml のシンボリックリンク
-if [ -e ~/.config/yazi/yazi.toml ]; then
-  echo "⏭️ ~/.config/yazi/yazi.toml は既に存在します"
-else
-  if ln -s "$(pwd)/yazi/yazi.toml" ~/.config/yazi/yazi.toml 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.config/yazi/yazi.toml -> $(pwd)/yazi/yazi.toml"
-  fi
-fi
-
-# theme.toml のシンボリックリンク
-if [ -e ~/.config/yazi/theme.toml ]; then
-  echo "⏭️ ~/.config/yazi/theme.toml は既に存在します"
-else
-  if ln -s "$(pwd)/yazi/theme.toml" ~/.config/yazi/theme.toml 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.config/yazi/theme.toml -> $(pwd)/yazi/theme.toml"
-  fi
-fi
+ensure_dir ~/.config/yazi
+link_if_absent "$(pwd)/yazi/yazi.toml" ~/.config/yazi/yazi.toml
+link_if_absent "$(pwd)/yazi/theme.toml" ~/.config/yazi/theme.toml
 
 # Catppuccin Dracula テーマのインストール
 if [ -x "$(command -v ya)" ]; then
@@ -290,70 +235,26 @@ fi
 # 👻 Ghostty 設定のセットアップ
 # ======================
 
-# Ghostty設定ディレクトリのシンボリックリンク
-if [ -e ~/.config/ghostty ]; then
-  echo "⏭️ ~/.config/ghostty は既に存在します"
-else
-  if ln -s "$(pwd)/ghostty" ~/.config/ghostty 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.config/ghostty -> $(pwd)/ghostty"
-  fi
-fi
+link_if_absent "$(pwd)/ghostty" ~/.config/ghostty
 
 
 # ======================
 # ⌨️ macOS キーバインディング設定のセットアップ
 # ======================
 
-# KeyBindings ディレクトリ作成
-if [ ! -d ~/Library/KeyBindings ]; then
-  mkdir -p ~/Library/KeyBindings
-  echo "✅ ディレクトリを作成しました: ~/Library/KeyBindings"
-fi
-
-# DefaultKeyBinding.dict のシンボリックリンク
-if [ -e ~/Library/KeyBindings/DefaultKeyBinding.dict ]; then
-  echo "⏭️ ~/Library/KeyBindings/DefaultKeyBinding.dict は既に存在します"
-else
-  if ln -s "$(pwd)/Library/KeyBindings/DefaultKeyBinding.dict" ~/Library/KeyBindings/DefaultKeyBinding.dict 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/Library/KeyBindings/DefaultKeyBinding.dict -> $(pwd)/Library/KeyBindings/DefaultKeyBinding.dict"
-  fi
-fi
+ensure_dir ~/Library/KeyBindings
+link_if_absent "$(pwd)/Library/KeyBindings/DefaultKeyBinding.dict" ~/Library/KeyBindings/DefaultKeyBinding.dict
 
 
 # ======================
 # 🖥️ Cursor IDE 設定のセットアップ
 # ======================
 
-# Cursor設定ディレクトリ
-CURSOR_USER_DIR="$HOME/Library/Application Support/Cursor/User"
-
 # Cursor設定ディレクトリが存在する場合のみセットアップ
+CURSOR_USER_DIR="$HOME/Library/Application Support/Cursor/User"
 if [ -d "$CURSOR_USER_DIR" ]; then
-  # settings.json のシンボリックリンク
-  if [ -L "$CURSOR_USER_DIR/settings.json" ]; then
-    echo "⏭️ $CURSOR_USER_DIR/settings.json は既にシンボリックリンクです"
-  else
-    if [ -e "$CURSOR_USER_DIR/settings.json" ]; then
-      rm "$CURSOR_USER_DIR/settings.json"
-      echo "🗑️ 既存のファイルを削除しました: $CURSOR_USER_DIR/settings.json"
-    fi
-    if ln -s "$(pwd)/cursor-app/settings.json" "$CURSOR_USER_DIR/settings.json" 2>/dev/null; then
-      echo "✅ シンボリックリンクを作成しました: $CURSOR_USER_DIR/settings.json -> $(pwd)/cursor-app/settings.json"
-    fi
-  fi
-
-  # keybindings.json のシンボリックリンク
-  if [ -L "$CURSOR_USER_DIR/keybindings.json" ]; then
-    echo "⏭️ $CURSOR_USER_DIR/keybindings.json は既にシンボリックリンクです"
-  else
-    if [ -e "$CURSOR_USER_DIR/keybindings.json" ]; then
-      rm "$CURSOR_USER_DIR/keybindings.json"
-      echo "🗑️ 既存のファイルを削除しました: $CURSOR_USER_DIR/keybindings.json"
-    fi
-    if ln -s "$(pwd)/cursor-app/keybindings.json" "$CURSOR_USER_DIR/keybindings.json" 2>/dev/null; then
-      echo "✅ シンボリックリンクを作成しました: $CURSOR_USER_DIR/keybindings.json -> $(pwd)/cursor-app/keybindings.json"
-    fi
-  fi
+  link_replace "$(pwd)/cursor-app/settings.json" "$CURSOR_USER_DIR/settings.json"
+  link_replace "$(pwd)/cursor-app/keybindings.json" "$CURSOR_USER_DIR/keybindings.json"
 else
   echo "⚠️ Cursor がインストールされていません。Cursor IDE 設定のセットアップをスキップします"
 fi
@@ -363,11 +264,4 @@ fi
 # 🐚 Zsh 設定のセットアップ
 # ======================
 
-# .zshrc のシンボリックリンク作成
-if [ -e ~/.zshrc ]; then
-  echo "⏭️ ~/.zshrc は既に存在します"
-else
-  if ln -s "$(pwd)/zsh/.zshrc" ~/.zshrc 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: ~/.zshrc -> $(pwd)/zsh/.zshrc"
-  fi
-fi
+link_if_absent "$(pwd)/zsh/.zshrc" ~/.zshrc
