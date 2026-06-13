@@ -129,6 +129,7 @@ abbr -a br bun run
 abbr -a c claude
 abbr -a cl cline
 abbr -a co codex
+abbr -a oc opencode
 abbr -a d devin
 abbr -a dd devin-desktop
 abbr -a cur cursor
