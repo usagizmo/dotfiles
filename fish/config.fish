@@ -127,6 +127,7 @@ abbr -a gp! git push --force
 abbr -a rm safe-rm
 abbr -a br bun run
 abbr -a c claude
+abbr -a cl cline
 abbr -a co codex
 abbr -a d devin
 abbr -a dd devin-desktop
