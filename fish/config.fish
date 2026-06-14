@@ -40,6 +40,12 @@ end
 # エディタ設定
 set -gx EDITOR nvim
 
+# Rust ビルドキャッシュ (sccache)
+# worktree ごとに独立した target を使うため、依存 crate のコンパイルキャッシュを
+# sccache で worktree 間共有して初回ビルドを短縮する
+set -gx RUSTC_WRAPPER sccache
+set -gx SCCACHE_DIR "$HOME/.cache/sccache"
+
 # 機密情報は別ファイルで管理
 if test -f ~/.local/fish/env.fish
   source ~/.local/fish/env.fish
