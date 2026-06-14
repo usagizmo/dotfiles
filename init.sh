@@ -77,19 +77,10 @@ ensure_dir() {
 
 
 # ======================
-# 🐙 GitHub Copilot 設定のセットアップ
-# ======================
-
-link_if_absent "$(pwd)/harnesses/copilot" ~/.copilot
-
-
-# ======================
 # 🤖 Claude 設定のセットアップ
 # ======================
 
-link_repo_relative ../../agents/AGENTS.md "$(pwd)/harnesses/claude/CLAUDE.md"
 link_if_absent "$(pwd)/harnesses/claude" ~/.claude
-link_repo_relative ../../agents/rules "$(pwd)/harnesses/claude/rules"
 
 
 # ======================
@@ -97,14 +88,13 @@ link_repo_relative ../../agents/rules "$(pwd)/harnesses/claude/rules"
 # ======================
 
 link_if_absent "$(pwd)/harnesses/codex" ~/.codex
-link_repo_relative ../../agents/AGENTS.md "$(pwd)/harnesses/codex/AGENTS.md"
 
 
 # ======================
-# 🤖 Agents 設定のセットアップ
+# 🐙 GitHub Copilot 設定のセットアップ
 # ======================
 
-link_if_absent "$(pwd)/agents" ~/.agents
+link_if_absent "$(pwd)/harnesses/copilot" ~/.copilot
 
 
 # ======================
@@ -118,8 +108,15 @@ link_if_absent "$(pwd)/harnesses/cursor" ~/.cursor
 # 🤖 Devin CLI 設定のセットアップ
 # ======================
 
-ensure_dir ~/.config/devin
-link_if_absent "$(pwd)/harnesses/devin/AGENTS.md" ~/.config/devin/AGENTS.md
+ensure_dir ~/.config
+link_if_absent "$(pwd)/harnesses/devin" ~/.config/devin
+
+
+# ======================
+# 🤖 Agents 設定のセットアップ
+# ======================
+
+link_if_absent "$(pwd)/agents" ~/.agents
 
 
 # ======================
