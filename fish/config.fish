@@ -133,6 +133,7 @@ abbr -a gp! git push --force
 abbr -a rm safe-rm
 abbr -a br bun run
 abbr -a c claude
+abbr -a ag agent
 abbr -a cl cline
 abbr -a co codex
 abbr -a oc opencode
@@ -145,8 +146,10 @@ abbr -a ol ollama
 abbr -a keka /Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a
 
 
-# opencode
-fish_add_path $HOME/.opencode/bin
+# --------------------
+# Harnesses
+# --------------------
 
-# devin
+fish_add_path $HOME/.opencode/bin
 fish_add_path $HOME/.codeium/windsurf/bin
+fish_add_path $HOME/.grok/bin
