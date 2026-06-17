@@ -1,48 +1,57 @@
 #!/bin/bash
 
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # ======================
 # 🔧 ヘルパー関数
 # ======================
 
-# dst が無ければ src へのシンボリックリンクを作成する。
-# 既存 symlink がこの dotfiles repo 内を指している場合は、移動後の src へ更新する。
-link_if_absent() {
-  local src=$1 dst=$2 current repo_root
-  repo_root="$(pwd)"
+# ディレクトリが無ければ作成する
+ensure_dir() {
+  if [ ! -d "$1" ]; then
+    mkdir -p "$1"
+    echo "✅ ディレクトリを作成しました: $1"
+  fi
+}
+
+link_path() {
+  local src=$1 dst=$2 current parent
+  if [ ! -e "$src" ] && [ ! -L "$src" ]; then
+    echo "⚠️ symlink 元が存在しないためスキップします: $src"
+    return 1
+  fi
+  parent="$(dirname "$dst")"
+  ensure_dir "$parent"
   if [ -L "$dst" ]; then
     current="$(readlink "$dst")"
     if [ "$current" = "$src" ]; then
       echo "⏭️ $dst のシンボリックリンクは既に存在します"
-    elif [ "${current#$repo_root/}" != "$current" ]; then
+    elif [ "${current#$DOTFILES_DIR/}" != "$current" ]; then
       ln -sfn "$src" "$dst"
       echo "🔁 シンボリックリンクを更新しました: $dst -> $src"
     else
-      echo "⏭️ $dst は別の場所を指しているためスキップします: $current"
+      echo "⚠️ $dst は別の場所を指しているためスキップします: $current"
     fi
+  elif [ -d "$dst" ]; then
+    echo "⚠️ $dst は実ディレクトリです。symlink 作成をスキップします"
   elif [ -e "$dst" ]; then
-    echo "⏭️ $dst は既に存在します"
+    echo "⚠️ $dst は実ファイルです。symlink 作成をスキップします"
   elif ln -s "$src" "$dst" 2>/dev/null; then
     echo "✅ シンボリックリンクを作成しました: $dst -> $src"
   fi
 }
 
-# リポジトリ内に相対パス target へのシンボリックリンクを作成する。
-# 既存 symlink が別 target を向いている場合は更新する。
-link_repo_relative() {
-  local target=$1 path=$2 current
-  if [ -L "$path" ]; then
-    current="$(readlink "$path")"
-    if [ "$current" = "$target" ]; then
-      echo "⏭️ $path のシンボリックリンクは既に存在します"
-    else
-      ln -sfn "$target" "$path"
-      echo "🔁 シンボリックリンクを更新しました: $path -> $target"
-    fi
-  elif [ -e "$path" ]; then
-    echo "⏭️ $path は既に存在します"
-  elif ln -s "$target" "$path" 2>/dev/null; then
-    echo "✅ シンボリックリンクを作成しました: $path -> $target"
-  fi
+link_from_repo() {
+  link_path "$DOTFILES_DIR/$1" "$2"
+}
+
+link_agent_skills() {
+  local dst=$1 skill
+  ensure_dir "$dst"
+  for skill in "$DOTFILES_DIR"/agents/skills/*; do
+    [ -d "$skill" ] || [ -L "$skill" ] || continue
+    link_path "$skill" "$dst/$(basename "$skill")"
+  done
 }
 
 # 既存の実ファイルを削除して src へのシンボリックリンクに置き換える
@@ -67,41 +76,43 @@ link_replace() {
   fi
 }
 
-# ディレクトリが無ければ作成する
-ensure_dir() {
-  if [ ! -d "$1" ]; then
-    mkdir -p "$1"
-    echo "✅ ディレクトリを作成しました: $1"
-  fi
-}
-
-
 # ======================
 # 🤖 Claude 設定のセットアップ
 # ======================
 
-link_if_absent "$(pwd)/harnesses/claude" ~/.claude
+ensure_dir "$HOME/.claude"
+link_from_repo agents/AGENTS.md "$HOME/.claude/CLAUDE.md"
+link_from_repo agents/rules "$HOME/.claude/rules"
+link_agent_skills "$HOME/.claude/skills"
+link_from_repo harnesses/claude/settings.json "$HOME/.claude/settings.json"
+link_from_repo harnesses/claude/statusline.py "$HOME/.claude/statusline.py"
 
 
 # ======================
 # 🤖 Codex 設定のセットアップ
 # ======================
 
-link_if_absent "$(pwd)/harnesses/codex" ~/.codex
+ensure_dir "$HOME/.codex"
+link_from_repo agents/AGENTS.md "$HOME/.codex/AGENTS.md"
+link_from_repo harnesses/codex/hooks.json "$HOME/.codex/hooks.json"
 
 
 # ======================
 # 🐙 GitHub Copilot 設定のセットアップ
 # ======================
 
-link_if_absent "$(pwd)/harnesses/copilot" ~/.copilot
+ensure_dir "$HOME/.copilot"
+link_from_repo harnesses/copilot/copilot-instructions.md "$HOME/.copilot/copilot-instructions.md"
+link_from_repo harnesses/copilot/mcp-config.json "$HOME/.copilot/mcp-config.json"
 
 
 # ======================
 # 🤖 Cursor CLI / Agent 設定のセットアップ
 # ======================
 
-link_if_absent "$(pwd)/harnesses/cursor" ~/.cursor
+ensure_dir "$HOME/.cursor"
+link_from_repo harnesses/cursor/hooks.json "$HOME/.cursor/hooks.json"
+link_agent_skills "$HOME/.cursor/skills"
 
 
 # ======================
@@ -109,21 +120,26 @@ link_if_absent "$(pwd)/harnesses/cursor" ~/.cursor
 # ======================
 
 ensure_dir ~/.config
-link_if_absent "$(pwd)/harnesses/devin" ~/.config/devin
+ensure_dir "$HOME/.config/devin"
+link_from_repo harnesses/devin/AGENTS.md "$HOME/.config/devin/AGENTS.md"
 
 
 # ======================
 # 🤖 Agents 設定のセットアップ
 # ======================
 
-link_if_absent "$(pwd)/agents" ~/.agents
+ensure_dir "$HOME/.agents"
+link_from_repo agents/AGENTS.md "$HOME/.agents/AGENTS.md"
+link_from_repo agents/rules "$HOME/.agents/rules"
+link_from_repo agents/skills "$HOME/.agents/skills"
+link_from_repo agents/.skill-lock.json "$HOME/.agents/.skill-lock.json"
 
 
 # ======================
 # 🔧 Tmux 設定のセットアップ
 # ======================
 
-link_if_absent "$(pwd)/tmux/.tmux.conf" ~/.tmux.conf
+link_from_repo tmux/.tmux.conf "$HOME/.tmux.conf"
 
 # tmux plugin manager (tpm) のセットアップ
 if [ ! -d ~/.tmux/plugins/tpm ]; then
@@ -140,11 +156,11 @@ fi
 # ======================
 
 ensure_dir ~/.config/mise
-link_if_absent "$(pwd)/mise/config.toml" ~/.config/mise/config.toml
+link_from_repo mise/config.toml "$HOME/.config/mise/config.toml"
 
 # ツールのインストール
 if [ -x "$(command -v mise)" ]; then
-  mise trust "$(pwd)/mise/config.toml"
+  mise trust "$DOTFILES_DIR/mise/config.toml"
   echo "📦 mise でツールをインストールしています..."
   mise install
   echo "✅ mise のツールをインストールしました"
@@ -158,7 +174,7 @@ fi
 # ======================
 
 ensure_dir ~/.config/fish
-link_if_absent "$(pwd)/fish/config.fish" ~/.config/fish/config.fish
+link_from_repo fish/config.fish "$HOME/.config/fish/config.fish"
 
 # Fish 機密環境変数設定のセットアップ
 ensure_dir ~/.local/fish
@@ -167,8 +183,8 @@ ensure_dir ~/.local/fish
 if [ -e ~/.local/fish/env.fish ]; then
   echo "⏭️ ~/.local/fish/env.fish は既に存在します"
 else
-  if cp "$(pwd)/fish/env.fish" ~/.local/fish/env.fish 2>/dev/null; then
-    echo "✅ ファイルをコピーしました: ~/.local/fish/env.fish <- $(pwd)/fish/env.fish"
+  if cp "$DOTFILES_DIR/fish/env.fish" ~/.local/fish/env.fish 2>/dev/null; then
+    echo "✅ ファイルをコピーしました: ~/.local/fish/env.fish <- $DOTFILES_DIR/fish/env.fish"
     echo "📝 ~/.local/fish/env.fish を編集して環境変数を設定してください"
   fi
 fi
@@ -202,8 +218,8 @@ fi
 # ======================
 
 ensure_dir ~/.config/nvim
-link_if_absent "$(pwd)/nvim/init.lua" ~/.config/nvim/init.lua
-link_if_absent "$(pwd)/nvim/lua" ~/.config/nvim/lua
+link_from_repo nvim/init.lua "$HOME/.config/nvim/init.lua"
+link_from_repo nvim/lua "$HOME/.config/nvim/lua"
 
 
 # ======================
@@ -211,8 +227,8 @@ link_if_absent "$(pwd)/nvim/lua" ~/.config/nvim/lua
 # ======================
 
 ensure_dir ~/.config/yazi
-link_if_absent "$(pwd)/yazi/yazi.toml" ~/.config/yazi/yazi.toml
-link_if_absent "$(pwd)/yazi/theme.toml" ~/.config/yazi/theme.toml
+link_from_repo yazi/yazi.toml "$HOME/.config/yazi/yazi.toml"
+link_from_repo yazi/theme.toml "$HOME/.config/yazi/theme.toml"
 
 # Catppuccin Dracula テーマのインストール
 if [ -x "$(command -v ya)" ]; then
@@ -232,7 +248,7 @@ fi
 # 👻 Ghostty 設定のセットアップ
 # ======================
 
-link_if_absent "$(pwd)/ghostty" ~/.config/ghostty
+link_from_repo ghostty "$HOME/.config/ghostty"
 
 
 # ======================
@@ -240,7 +256,7 @@ link_if_absent "$(pwd)/ghostty" ~/.config/ghostty
 # ======================
 
 ensure_dir ~/Library/KeyBindings
-link_if_absent "$(pwd)/Library/KeyBindings/DefaultKeyBinding.dict" ~/Library/KeyBindings/DefaultKeyBinding.dict
+link_from_repo Library/KeyBindings/DefaultKeyBinding.dict "$HOME/Library/KeyBindings/DefaultKeyBinding.dict"
 
 
 # ======================
@@ -250,8 +266,8 @@ link_if_absent "$(pwd)/Library/KeyBindings/DefaultKeyBinding.dict" ~/Library/Key
 # Cursor設定ディレクトリが存在する場合のみセットアップ
 CURSOR_USER_DIR="$HOME/Library/Application Support/Cursor/User"
 if [ -d "$CURSOR_USER_DIR" ]; then
-  link_replace "$(pwd)/cursor-app/settings.json" "$CURSOR_USER_DIR/settings.json"
-  link_replace "$(pwd)/cursor-app/keybindings.json" "$CURSOR_USER_DIR/keybindings.json"
+  link_replace "$DOTFILES_DIR/cursor-app/settings.json" "$CURSOR_USER_DIR/settings.json"
+  link_replace "$DOTFILES_DIR/cursor-app/keybindings.json" "$CURSOR_USER_DIR/keybindings.json"
 else
   echo "⚠️ Cursor がインストールされていません。Cursor IDE 設定のセットアップをスキップします"
 fi
@@ -261,4 +277,4 @@ fi
 # 🐚 Zsh 設定のセットアップ
 # ======================
 
-link_if_absent "$(pwd)/zsh/.zshrc" ~/.zshrc
+link_from_repo zsh/.zshrc "$HOME/.zshrc"
