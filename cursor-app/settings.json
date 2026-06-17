@@ -19,7 +19,7 @@
   "terminal.integrated.copyOnSelection": true,
   "emmet.triggerExpansionOnTab": true,
   "emmet.variables": {
-    "lang": "ja"
+    "lang": "ja",
   },
   "window.commandCenter": false,
   "workbench.colorTheme": "One Monokai",
@@ -56,10 +56,11 @@
       "input.background": "#292929",
       "gitDecoration.ignoredResourceForeground": "#777777",
       "editorGroup.emptyBackground": "#191a1a",
-    }
+    },
   },
   "workbench.tree.enableStickyScroll": true,
   "workbench.startupEditor": "none",
+  "workbench.agentsWindowButton.enabled": false,
   "explorer.incrementalNaming": "smart",
   "files.autoSave": "onFocusChange",
   "git.enableSmartCommit": true,
@@ -69,8 +70,8 @@
   "multiCommand.commands": [
     {
       "command": "multiCommand.commentLineAndCursorDown",
-      "sequence": ["editor.action.commentLine", "cursorDown"]
-    }
+      "sequence": ["editor.action.commentLine", "cursorDown"],
+    },
   ],
   "html.autoClosingTags": false,
   "tailwindCSS.colorDecorators": false,
@@ -95,7 +96,7 @@
     "markdown",
     "html",
     "svelte",
-    "vue"
+    "vue",
   ],
   "insert-br-tag.trailingSlashLanguage": [
     "javascript",
@@ -104,24 +105,24 @@
     "typescriptreact",
     "html",
     "svelte",
-    "vue"
+    "vue",
   ],
   "gitlens.gitCommands.skipConfirmations": [
     "fetch:command",
     "stash-push:command",
     "switch:command",
     "branch-create:command",
-    "push:command"
+    "push:command",
   ],
   "gitlens.advanced.messages": {
-    "suppressLineUncommittedWarning": true
+    "suppressLineUncommittedWarning": true,
   },
   "gitlens.hovers.currentLine.over": "line",
   "gitlens.codeLens.authors.enabled": false,
   "gitlens.codeLens.enabled": false,
   "markdownlint.config": {
     "MD041": false,
-    "MD034": false
+    "MD034": false,
   },
   "markdown.preview.scrollEditorWithPreview": false,
   "openinmarked.apppath": "/Applications/Setapp/Marked.app",
@@ -134,9 +135,7 @@
   "security.workspace.trust.untrustedFiles": "open",
   "cursor.composer.shouldChimeAfterChatFinishes": true,
   "cursor.composer.usageSummaryDisplay": "always",
-  "cursor.cpp.disabledLanguages": [
-    "plaintext"
-  ],
+  "cursor.cpp.disabledLanguages": ["plaintext"],
   "update.mode": "silentlyApplyOnQuit",
   "window.autoDetectColorScheme": false,
 }
