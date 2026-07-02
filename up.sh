@@ -1,5 +1,21 @@
 #!/bin/bash
 
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# ======================
+# 🤖 外部取得 agent skills の更新
+# ======================
+
+# agents/.skill-lock.json 管理の外部 skill (vercel-cli / sentry-cli 等) を更新する
+if [ -x "$(command -v bunx)" ]; then
+  echo "📦 外部取得の agent skills を更新しています..."
+  (cd "$DOTFILES_DIR/agents" && bunx skills update -y)
+  echo "✅ agent skills を更新しました"
+else
+  echo "⚠️ bunx が見つかりません。agent skills の更新をスキップします"
+fi
+
+
 # ======================
 # 🔧 Tmux 設定の更新
 # ======================
