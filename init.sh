@@ -99,7 +99,7 @@ link_replace() {
 # ======================
 
 ensure_dir "$HOME/.claude"
-link_from_repo agents/AGENTS.md "$HOME/.claude/CLAUDE.md"
+link_from_repo harnesses/claude/CLAUDE.md "$HOME/.claude/CLAUDE.md"
 link_from_repo agents/rules "$HOME/.claude/rules"
 link_agent_skills "$HOME/.claude/skills"
 # settings.json は外部ツール (orca / superset 等) が hooks を注入して書き換えるため
@@ -131,7 +131,7 @@ link_from_repo harnesses/copilot/mcp-config.json "$HOME/.copilot/mcp-config.json
 # ======================
 
 ensure_dir "$HOME/.cursor"
-link_from_repo agents/AGENTS.md "$HOME/.cursor/AGENTS.md"
+link_from_repo harnesses/cursor/AGENTS.md "$HOME/.cursor/AGENTS.md"
 link_agent_skills "$HOME/.cursor/skills"
 
 
