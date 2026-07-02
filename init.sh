@@ -46,12 +46,30 @@ link_from_repo() {
 }
 
 link_agent_skills() {
-  local dst=$1 skill
+  local dst=$1 skill link
   ensure_dir "$dst"
   for skill in "$DOTFILES_DIR"/agents/skills/*; do
     [ -d "$skill" ] || [ -L "$skill" ] || continue
     link_path "$skill" "$dst/$(basename "$skill")"
   done
+  # repo から削除された skill 等の壊れた symlink を掃除する（正常なリンク・実体には触れない）
+  for link in "$dst"/*; do
+    if [ -L "$link" ] && [ ! -e "$link" ]; then
+      rm "$link"
+      echo "🗑️ 壊れたシンボリックリンクを削除しました: $link"
+    fi
+  done
+}
+
+# 初回のみ src をコピーする（外部ツールが実体を書き換えるファイル用。コピーしたら 0 を返す）
+copy_if_missing() {
+  local src=$1 dst=$2
+  if [ -e "$dst" ] && [ ! -L "$dst" ]; then
+    echo "⏭️ $dst は既に存在します"
+    return 1
+  fi
+  [ -L "$dst" ] && rm "$dst"
+  cp "$src" "$dst" 2>/dev/null && echo "✅ ファイルをコピーしました: $dst <- $src"
 }
 
 # 既存の実ファイルを削除して src へのシンボリックリンクに置き換える
@@ -84,7 +102,9 @@ ensure_dir "$HOME/.claude"
 link_from_repo agents/AGENTS.md "$HOME/.claude/CLAUDE.md"
 link_from_repo agents/rules "$HOME/.claude/rules"
 link_agent_skills "$HOME/.claude/skills"
-link_from_repo harnesses/claude/settings.json "$HOME/.claude/settings.json"
+# settings.json は symlink 方式で tracked と実体を一致させる。orca / superset 等が
+# 注入する hooks や /model・/effort 等の変更も git diff に現れ、取捨選択できる
+link_replace "$DOTFILES_DIR/harnesses/claude/settings.json" "$HOME/.claude/settings.json"
 link_from_repo harnesses/claude/statusline.py "$HOME/.claude/statusline.py"
 
 
@@ -94,7 +114,7 @@ link_from_repo harnesses/claude/statusline.py "$HOME/.claude/statusline.py"
 
 ensure_dir "$HOME/.codex"
 link_from_repo agents/AGENTS.md "$HOME/.codex/AGENTS.md"
-link_from_repo harnesses/codex/hooks.json "$HOME/.codex/hooks.json"
+link_agent_skills "$HOME/.codex/skills"
 
 
 # ======================
@@ -111,7 +131,7 @@ link_from_repo harnesses/copilot/mcp-config.json "$HOME/.copilot/mcp-config.json
 # ======================
 
 ensure_dir "$HOME/.cursor"
-link_from_repo harnesses/cursor/hooks.json "$HOME/.cursor/hooks.json"
+link_from_repo agents/AGENTS.md "$HOME/.cursor/AGENTS.md"
 link_agent_skills "$HOME/.cursor/skills"
 
 
@@ -160,10 +180,14 @@ link_from_repo mise/config.toml "$HOME/.config/mise/config.toml"
 
 # ツールのインストール
 if [ -x "$(command -v mise)" ]; then
-  mise trust "$DOTFILES_DIR/mise/config.toml"
-  echo "📦 mise でツールをインストールしています..."
-  mise install
-  echo "✅ mise のツールをインストールしました"
+  mise trust -q "$DOTFILES_DIR/mise/config.toml"
+  if [ -n "$(mise ls --missing --no-header 2>/dev/null)" ]; then
+    echo "📦 mise でツールをインストールしています..."
+    mise install
+    echo "✅ mise のツールをインストールしました"
+  else
+    echo "⏭️ mise のツールは既にインストールされています"
+  fi
 else
   echo "⚠️ mise がインストールされていません。brew install mise を実行してください"
 fi
@@ -180,13 +204,8 @@ link_from_repo fish/config.fish "$HOME/.config/fish/config.fish"
 ensure_dir ~/.local/fish
 
 # env.fish のコピー（既存ファイルがある場合は上書きしない）
-if [ -e ~/.local/fish/env.fish ]; then
-  echo "⏭️ ~/.local/fish/env.fish は既に存在します"
-else
-  if cp "$DOTFILES_DIR/fish/env.fish" ~/.local/fish/env.fish 2>/dev/null; then
-    echo "✅ ファイルをコピーしました: ~/.local/fish/env.fish <- $DOTFILES_DIR/fish/env.fish"
-    echo "📝 ~/.local/fish/env.fish を編集して環境変数を設定してください"
-  fi
+if copy_if_missing "$DOTFILES_DIR/fish/env.fish" "$HOME/.local/fish/env.fish"; then
+  echo "📝 ~/.local/fish/env.fish を編集して環境変数を設定してください"
 fi
 
 # Fisher (fish plugin manager) のセットアップ
