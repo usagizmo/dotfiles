@@ -115,6 +115,8 @@ link_from_repo harnesses/claude/statusline.py "$HOME/.claude/statusline.py"
 ensure_dir "$HOME/.codex"
 link_from_repo agents/AGENTS.md "$HOME/.codex/AGENTS.md"
 link_agent_skills "$HOME/.codex/skills"
+# hooks は config.toml の [hooks] に書かず専用ファイルへ切り出す（同一レイヤで両方置くと警告）
+link_from_repo harnesses/codex/hooks.json "$HOME/.codex/hooks.json"
 
 
 # ======================
@@ -124,6 +126,8 @@ link_agent_skills "$HOME/.codex/skills"
 ensure_dir "$HOME/.copilot"
 link_from_repo harnesses/copilot/copilot-instructions.md "$HOME/.copilot/copilot-instructions.md"
 link_from_repo harnesses/copilot/mcp-config.json "$HOME/.copilot/mcp-config.json"
+# hooks は ~/.copilot/hooks/*.json の glob 読み込み。単一ファイルを symlink する
+link_from_repo harnesses/copilot/hooks/hooks.json "$HOME/.copilot/hooks/hooks.json"
 
 
 # ======================
@@ -133,6 +137,8 @@ link_from_repo harnesses/copilot/mcp-config.json "$HOME/.copilot/mcp-config.json
 ensure_dir "$HOME/.cursor"
 link_from_repo harnesses/cursor/AGENTS.md "$HOME/.cursor/AGENTS.md"
 link_agent_skills "$HOME/.cursor/skills"
+# hooks は CLI では afterFileEdit 等の一部イベントのみ発火する（入れ子 matcher 形式は非対応）
+link_from_repo harnesses/cursor/hooks.json "$HOME/.cursor/hooks.json"
 
 
 # ======================
@@ -142,6 +148,15 @@ link_agent_skills "$HOME/.cursor/skills"
 ensure_dir ~/.config
 ensure_dir "$HOME/.config/devin"
 link_from_repo harnesses/devin/AGENTS.md "$HOME/.config/devin/AGENTS.md"
+
+
+# ======================
+# 🤖 Grok Build 設定のセットアップ
+# ======================
+
+ensure_dir "$HOME/.grok"
+# hooks は ~/.grok/hooks/*.json の glob 読み込み。単一ファイルを symlink する
+link_from_repo harnesses/grok/hooks/hooks.json "$HOME/.grok/hooks/hooks.json"
 
 
 # ======================
