@@ -99,7 +99,7 @@ link_replace() {
 # ======================
 
 ensure_dir "$HOME/.claude"
-link_from_repo harnesses/claude/CLAUDE.md "$HOME/.claude/CLAUDE.md"
+link_from_repo agents/AGENTS.md "$HOME/.claude/CLAUDE.md"
 link_from_repo agents/rules "$HOME/.claude/rules"
 link_agent_skills "$HOME/.claude/skills"
 # settings.json は symlink 方式で tracked と実体を一致させる。orca / superset 等が
@@ -135,7 +135,7 @@ link_from_repo harnesses/copilot/hooks/hooks.json "$HOME/.copilot/hooks/hooks.js
 # ======================
 
 ensure_dir "$HOME/.cursor"
-link_from_repo harnesses/cursor/AGENTS.md "$HOME/.cursor/AGENTS.md"
+link_from_repo agents/AGENTS.md "$HOME/.cursor/AGENTS.md"
 link_agent_skills "$HOME/.cursor/skills"
 # hooks は CLI では afterFileEdit 等の一部イベントのみ発火する（入れ子 matcher 形式は非対応）
 link_from_repo harnesses/cursor/hooks.json "$HOME/.cursor/hooks.json"
