@@ -209,6 +209,18 @@ fi
 
 
 # ======================
+# 🦀 Rust ビルドキャッシュ (sccache) のセットアップ
+# ======================
+
+# wrapper 有効化は cargo 側、cache dir / size は sccache 側の設定ファイルが SSOT。
+# 環境変数 (RUSTC_WRAPPER / SCCACHE_*) は shell 依存で効き漏れするため使わない
+ensure_dir "$HOME/.cargo"
+link_from_repo cargo/config.toml "$HOME/.cargo/config.toml"
+ensure_dir "$HOME/Library/Application Support/Mozilla.sccache"
+link_from_repo sccache/config "$HOME/Library/Application Support/Mozilla.sccache/config"
+
+
+# ======================
 # 🐠 Fish 設定のセットアップ
 # ======================
 
