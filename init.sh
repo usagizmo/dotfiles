@@ -137,7 +137,7 @@ link_from_repo harnesses/copilot/hooks/hooks.json "$HOME/.copilot/hooks/hooks.js
 ensure_dir "$HOME/.cursor"
 link_from_repo agents/AGENTS.md "$HOME/.cursor/AGENTS.md"
 link_agent_skills "$HOME/.cursor/skills"
-# hooks は CLI では afterFileEdit 等の一部イベントのみ発火する（入れ子 matcher 形式は非対応）
+# hooks は空オブジェクトを tracked にし、外部ソフトウェアによる書き換えを git diff で検知する
 link_from_repo harnesses/cursor/hooks.json "$HOME/.cursor/hooks.json"
 
 
