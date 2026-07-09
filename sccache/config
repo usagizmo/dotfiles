@@ -1,0 +1,5 @@
+# sccache 設定の SSOT。環境変数 (SCCACHE_DIR / SCCACHE_CACHE_SIZE) は
+# サーバーをどの shell が起動したかに依存するため、ここで固定する。
+[cache.disk]
+# 30 GiB。デフォルト 10 GiB は依存 crate キャッシュには小さく eviction が起きる
+size = 32212254720

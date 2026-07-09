@@ -1,0 +1,5 @@
+# Rust ビルドキャッシュ (sccache)
+# fish の環境変数 (RUSTC_WRAPPER) だけだと Git hook / IDE / 非対話 shell から
+# cargo が走ったときに効かないため、cargo 側の設定として固定する。
+[build]
+rustc-wrapper = "sccache"
