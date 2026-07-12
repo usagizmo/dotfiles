@@ -11,7 +11,7 @@
 #   inv_home <dir>                         harness home 等の実ディレクトリ
 #   inv_symlink <repo_rel> <dst>           通常 symlink（link_path）
 #   inv_replace <repo_rel> <dst>           実ファイルを差し替え symlink（settings 等）
-#   inv_harness_skills <dst> <harness> [--exclude a,b]
+#   inv_harness_skills <dst> <harness>     agents + shared + harnesses/<agent>（後勝ち）
 #   inv_collection <dst> [--exclude a,b] <repo_rel_src>...
 #   inv_seed <repo_rel> <dst>              初回 copy（check は存在確認のみ）
 #   inv_symlink_if_host <host_dir> <repo_rel> <dst>  host があるときだけ
@@ -44,10 +44,9 @@ inv_replace() {
 
 inv_harness_skills() {
   local dst=$1 harness=$2
-  shift 2
   case "$DOTFILES_OP" in
-    apply) link_harness_skills "$dst" "$harness" "$@" ;;
-    check) check_harness_skills "$dst" "$harness" "$@" ;;
+    apply) link_harness_skills "$dst" "$harness" ;;
+    check) check_harness_skills "$dst" "$harness" ;;
   esac
 }
 
@@ -141,11 +140,11 @@ inventory_define() {
   inv_symlink harnesses/claude/statusline.py "$HOME/.claude/statusline.py"
 
   # --- Codex ---
+  # アドバイザー側。shared の consult/review-loop（codex exec を呼ぶ）は配らない（再入防止）
   inv_section "codex"
   inv_home "$HOME/.codex"
   inv_symlink agents/AGENTS.md "$HOME/.codex/AGENTS.md"
-  inv_harness_skills "$HOME/.codex/skills" codex \
-    --exclude codex-consult,codex-review-loop,codex-delegate
+  inv_collection "$HOME/.codex/skills" agents/skills harnesses/codex/skills
   inv_symlink harnesses/codex/hooks.json "$HOME/.codex/hooks.json"
 
   # --- Copilot ---

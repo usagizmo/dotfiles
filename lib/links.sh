@@ -199,12 +199,15 @@ link_collection_union() {
   done
 }
 
-# link_harness_skills <dst> <harness> [--exclude a,b]
+# link_harness_skills <dst> <harness>
+# source 優先度: agents/skills < harnesses/shared/skills < harnesses/<agent>/skills
+# harnesses/shared は home を持たない共有束（疑似 harness ではない）
+# shared を載せない harness（例: Codex）は inv_collection で source を明示する
 link_harness_skills() {
   local dst=$1 harness=$2
-  shift 2
-  link_collection_union "$dst" "$@" \
+  link_collection_union "$dst" \
     "$DOTFILES_DIR/agents/skills" \
+    "$DOTFILES_DIR/harnesses/shared/skills" \
     "$DOTFILES_DIR/harnesses/$harness/skills"
 }
 
@@ -444,16 +447,10 @@ check_collection_union() {
 
 check_harness_skills() {
   local dst=$1 harness=$2
-  shift 2
-  if [ "${1:-}" = "--exclude" ]; then
-    check_collection_union "$dst" --exclude "$2" \
-      "$DOTFILES_DIR/agents/skills" \
-      "$DOTFILES_DIR/harnesses/$harness/skills"
-  else
-    check_collection_union "$dst" \
-      "$DOTFILES_DIR/agents/skills" \
-      "$DOTFILES_DIR/harnesses/$harness/skills"
-  fi
+  check_collection_union "$dst" \
+    "$DOTFILES_DIR/agents/skills" \
+    "$DOTFILES_DIR/harnesses/shared/skills" \
+    "$DOTFILES_DIR/harnesses/$harness/skills"
 }
 
 check_seed_file() {
