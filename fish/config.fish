@@ -113,10 +113,11 @@ abbr -a gc git commit
 abbr -a gcm git commit -m
 abbr -a gca git commit --amend
 
-# branch/checkout/merge
+# branch/checkout/merge/rebase
 abbr -a gb git branch
 abbr -a gco git checkout
 abbr -a gm git merge
+abbr -a grb git rebase
 
 # fetch/pull/push
 abbr -a gf git fetch
@@ -131,12 +132,12 @@ abbr -a gp! git push --force
 
 abbr -a rm safe-rm
 abbr -a br bun run
-abbr -a c claude
+abbr -a cc claude
 abbr -a ag agent
 abbr -a cl cline
 abbr -a co codex
 abbr -a oc opencode
-abbr -a d devin
+abbr -a de devin
 abbr -a dd devin-desktop
 abbr -a cur cursor
 abbr -a sm smerge
