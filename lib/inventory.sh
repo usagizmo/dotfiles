@@ -175,6 +175,13 @@ inventory_define() {
   inv_symlink harnesses/grok/hooks/hooks.json "$HOME/.grok/hooks/hooks.json"
   inv_harness_skills "$HOME/.grok/skills" grok
 
+  # --- Pi ---
+  inv_section "pi"
+  inv_home "$HOME/.pi"
+  inv_home "$HOME/.pi/agent"
+  inv_symlink agents/AGENTS.md "$HOME/.pi/agent/AGENTS.md"
+  inv_harness_skills "$HOME/.pi/agent/skills" pi
+
   # --- Shell / editor / tools ---
   inv_section "shell / editor / tools"
   inv_symlink tmux/.tmux.conf "$HOME/.tmux.conf"
