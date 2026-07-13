@@ -140,7 +140,7 @@ inventory_define() {
   inv_symlink harnesses/claude/statusline.py "$HOME/.claude/statusline.py"
 
   # --- Codex ---
-  # アドバイザー側。shared の consult/review-loop（codex exec を呼ぶ）は配らない（再入防止）
+  # アドバイザー側。shared の consult/review-loop は配らない（再入防止）
   inv_section "codex"
   inv_home "$HOME/.codex"
   inv_symlink agents/AGENTS.md "$HOME/.codex/AGENTS.md"
