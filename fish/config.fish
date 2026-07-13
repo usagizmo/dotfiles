@@ -81,6 +81,12 @@ fish_add_path "$HOME/.bun/bin"
 # LM Studio CLI
 fish_add_path "$HOME/.lmstudio/bin"
 
+# Agent harnesses
+fish_add_path "$HOME/.opencode/bin"
+fish_add_path "$HOME/.codeium/windsurf/bin"
+fish_add_path "$HOME/.grok/bin"
+fish_add_path "$HOME/.hermes/node/bin" # Pi
+
 
 # --------------------
 # Abbreviations - ディレクトリ移動
@@ -144,12 +150,3 @@ abbr -a sm smerge
 abbr -a st subl
 abbr -a ol ollama
 abbr -a keka /Applications/Keka.app/Contents/MacOS/Keka --cli 7zz a
-
-
-# --------------------
-# Harnesses
-# --------------------
-
-fish_add_path $HOME/.opencode/bin
-fish_add_path $HOME/.codeium/windsurf/bin
-fish_add_path $HOME/.grok/bin
