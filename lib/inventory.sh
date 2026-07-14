@@ -176,13 +176,16 @@ inventory_define() {
   inv_harness_skills "$HOME/.grok/skills" grok
 
   # --- Pi ---
-  # settings は好みのみ。auth/trust/sessions/git cache と
-  # Orca/Superset が書き込む extensions は tracked にしない
+  # settings は好みのみ。auth/trust/sessions/git cache は tracked にしない
+  # Orca/Superset が書く extensions 実ファイルは union で温存（dotfiles 管理下 link のみ掃除）
+  # /consult /finish は extensions/workflow.ts（slash 起動の SSOT。prompts は使わない）
   inv_section "pi"
   inv_home "$HOME/.pi"
   inv_home "$HOME/.pi/agent"
+  inv_home "$HOME/.pi/agent/extensions"
   inv_symlink agents/AGENTS.md "$HOME/.pi/agent/AGENTS.md"
   inv_replace harnesses/pi/settings.json "$HOME/.pi/agent/settings.json"
+  inv_collection "$HOME/.pi/agent/extensions" harnesses/pi/extensions
   inv_harness_skills "$HOME/.pi/agent/skills" pi
 
   # --- Shell / editor / tools ---
