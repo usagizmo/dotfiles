@@ -176,10 +176,13 @@ inventory_define() {
   inv_harness_skills "$HOME/.grok/skills" grok
 
   # --- Pi ---
+  # settings は好みのみ。auth/trust/sessions/git cache と
+  # Orca/Superset が書き込む extensions は tracked にしない
   inv_section "pi"
   inv_home "$HOME/.pi"
   inv_home "$HOME/.pi/agent"
   inv_symlink agents/AGENTS.md "$HOME/.pi/agent/AGENTS.md"
+  inv_replace harnesses/pi/settings.json "$HOME/.pi/agent/settings.json"
   inv_harness_skills "$HOME/.pi/agent/skills" pi
 
   # --- Shell / editor / tools ---
