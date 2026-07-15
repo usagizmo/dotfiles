@@ -95,7 +95,7 @@ inv_seed() {
         echo "📝 $dst を編集して環境変数を設定してください"
       fi
       ;;
-    check) check_seed_file "$dst" ;;
+    check) check_seed_file "$DOTFILES_DIR/$rel" "$dst" ;;
   esac
 }
 
