@@ -199,7 +199,7 @@ inventory_define() {
   inv_symlink sccache/config "$HOME/Library/Application Support/Mozilla.sccache/config"
   inv_home "$HOME/.config/fish"
   inv_symlink fish/config.fish "$HOME/.config/fish/config.fish"
-  inv_seed fish/env.fish "$HOME/.local/fish/env.fish"
+  inv_seed fish/env.fish "$HOME/.config/fish/conf.d/env.fish"
   inv_home "$HOME/.config/nvim"
   inv_symlink nvim/init.lua "$HOME/.config/nvim/init.lua"
   inv_symlink nvim/lua "$HOME/.config/nvim/lua"

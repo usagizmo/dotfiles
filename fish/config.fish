@@ -45,10 +45,8 @@ set -gx EDITOR nvim
 # - wrapper 有効化: ~/.cargo/config.toml の [build] rustc-wrapper
 # - cache dir / size: ~/Library/Application Support/Mozilla.sccache/config
 
-# 機密情報は別ファイルで管理
-if test -f ~/.local/fish/env.fish
-  source ~/.local/fish/env.fish
-end
+# 機密情報は ~/.config/fish/conf.d/env.fish（untracked、fish が自動 source）
+# テンプレート: dotfiles の fish/env.fish（init.sh が初回 copy）
 
 
 # --------------------
