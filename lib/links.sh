@@ -453,12 +453,29 @@ check_harness_skills() {
     "$DOTFILES_DIR/harnesses/$harness/skills"
 }
 
+# check_seed_file <template> <dst>
+# 存在に加え、テンプレートの `set -gx VAR value` を突き合わせる:
+# dst に VAR が無い、または値がテンプレート（placeholder）のままなら warn
 check_seed_file() {
-  local dst=$1
-  if [ -f "$dst" ] || [ -L "$dst" ]; then
-    doctor_pass "$dst が存在する（seed）"
-  else
+  local template=$1 dst=$2 line var placeholder actual missing=0
+  if [ ! -f "$dst" ] && [ ! -L "$dst" ]; then
     doctor_warn "$dst が無い（init.sh で copy される）"
+    return 0
+  fi
+  while IFS= read -r line; do
+    var=$(echo "$line" | awk '{print $3}')
+    placeholder=$(echo "$line" | awk '{print $4}')
+    actual=$(grep -E "^set -gx $var " "$dst" | awk '{print $4}')
+    if [ -z "$actual" ]; then
+      doctor_warn "$dst に $var が定義されていません（テンプレート: $template）"
+      missing=1
+    elif [ "$actual" = "$placeholder" ]; then
+      doctor_warn "$dst の $var が placeholder のままです: $placeholder"
+      missing=1
+    fi
+  done < <(grep -E '^set -gx ' "$template")
+  if [ "$missing" -eq 0 ]; then
+    doctor_pass "$dst が存在し、テンプレートの変数が設定済み（seed）"
   fi
 }
 
