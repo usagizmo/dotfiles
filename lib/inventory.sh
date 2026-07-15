@@ -135,7 +135,6 @@ inventory_define() {
   inv_symlink agents/AGENTS.md "$HOME/.claude/CLAUDE.md"
   inv_symlink agents/rules "$HOME/.claude/rules"
   inv_harness_skills "$HOME/.claude/skills" claude
-  inv_collection "$HOME/.claude/agents" harnesses/claude/agents
   inv_replace harnesses/claude/settings.json "$HOME/.claude/settings.json"
   inv_symlink harnesses/claude/statusline.py "$HOME/.claude/statusline.py"
 
@@ -159,7 +158,6 @@ inventory_define() {
   inv_home "$HOME/.cursor"
   inv_symlink agents/AGENTS.md "$HOME/.cursor/AGENTS.md"
   inv_harness_skills "$HOME/.cursor/skills" cursor
-  inv_collection "$HOME/.cursor/agents" harnesses/cursor/agents
   inv_symlink harnesses/cursor/hooks.json "$HOME/.cursor/hooks.json"
 
   # --- Devin ---
