@@ -11,7 +11,7 @@
 #   inv_home <dir>                         harness home 等の実ディレクトリ
 #   inv_symlink <repo_rel> <dst>           通常 symlink（link_path）
 #   inv_replace <repo_rel> <dst>           実ファイルを差し替え symlink（settings 等）
-#   inv_harness_skills <dst> <harness>     agents + shared + harnesses/<agent>（後勝ち）
+#   inv_harness_skills <dst> <harness>     agents + harnesses/<agent>（後勝ち）
 #   inv_collection <dst> [--exclude a,b] <repo_rel_src>...
 #   inv_seed <repo_rel> <dst>              初回 copy（check は存在確認のみ）
 #   inv_symlink_if_host <host_dir> <repo_rel> <dst>  host があるときだけ
@@ -139,11 +139,11 @@ inventory_define() {
   inv_symlink harnesses/claude/statusline.py "$HOME/.claude/statusline.py"
 
   # --- Codex ---
-  # アドバイザー側。shared の consult/review-loop は配らない（再入防止）
+  # Codex は ~/.agents/skills をネイティブに読む。union は harness 固有 overlay のみ
   inv_section "codex"
   inv_home "$HOME/.codex"
   inv_symlink agents/AGENTS.md "$HOME/.codex/AGENTS.md"
-  inv_collection "$HOME/.codex/skills" agents/skills harnesses/codex/skills
+  inv_collection "$HOME/.codex/skills" harnesses/codex/skills
   inv_symlink harnesses/codex/hooks.json "$HOME/.codex/hooks.json"
 
   # --- Copilot ---
@@ -184,7 +184,7 @@ inventory_define() {
   inv_symlink agents/AGENTS.md "$HOME/.pi/agent/AGENTS.md"
   inv_replace harnesses/pi/settings.json "$HOME/.pi/agent/settings.json"
   inv_collection "$HOME/.pi/agent/extensions" harnesses/pi/extensions
-  inv_harness_skills "$HOME/.pi/agent/skills" pi
+  # pi は ~/.agents/skills をネイティブに読む（skills union なし）
 
   # --- Shell / editor / tools ---
   inv_section "shell / editor / tools"

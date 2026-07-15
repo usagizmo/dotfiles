@@ -200,14 +200,11 @@ link_collection_union() {
 }
 
 # link_harness_skills <dst> <harness>
-# source 優先度: agents/skills < harnesses/shared/skills < harnesses/<agent>/skills
-# harnesses/shared は home を持たない共有束（疑似 harness ではない）
-# shared を載せない harness（例: Codex）は inv_collection で source を明示する
+# source 優先度: agents/skills < harnesses/<agent>/skills
 link_harness_skills() {
   local dst=$1 harness=$2
   link_collection_union "$dst" \
     "$DOTFILES_DIR/agents/skills" \
-    "$DOTFILES_DIR/harnesses/shared/skills" \
     "$DOTFILES_DIR/harnesses/$harness/skills"
 }
 
@@ -449,7 +446,6 @@ check_harness_skills() {
   local dst=$1 harness=$2
   check_collection_union "$dst" \
     "$DOTFILES_DIR/agents/skills" \
-    "$DOTFILES_DIR/harnesses/shared/skills" \
     "$DOTFILES_DIR/harnesses/$harness/skills"
 }
 
