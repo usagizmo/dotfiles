@@ -1,7 +1,0 @@
-# sccache 設定の SSOT。環境変数 (SCCACHE_DIR / SCCACHE_CACHE_SIZE) は
-# サーバーをどの shell が起動したかに依存するため、ここで固定する。
-[cache.disk]
-# 64 GiB。デフォルト 10 GiB は依存 crate キャッシュには小さく eviction が起きる。
-# worktree の cold build を sccache に任せる方針（rabi-notes は target 共有不可）のため
-# 30 GiB から拡張。ディスク圧迫時は戻してよい（LRU なので上限超過の危険はない）
-size = 68719476736
