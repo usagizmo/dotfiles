@@ -40,11 +40,6 @@ end
 # エディタ設定
 set -gx EDITOR nvim
 
-# Rust ビルドキャッシュ (sccache)
-# fish 依存を避けるため環境変数では設定しない。SSOT:
-# - wrapper 有効化: ~/.cargo/config.toml の [build] rustc-wrapper
-# - cache dir / size: ~/Library/Application Support/Mozilla.sccache/config
-
 # 機密情報は ~/.config/fish/conf.d/env.fish（untracked、fish が自動 source）
 # テンプレート: dotfiles の fish/env.fish（init.sh が初回 copy）
 
