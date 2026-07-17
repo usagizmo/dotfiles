@@ -6,6 +6,22 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/inventory.sh
 . "$DOTFILES_DIR/lib/inventory.sh"
 
+INSTALL_FAILED=0
+
+# インストールの成否を握りつぶさない。失敗は summary で集計し非ゼロ終了する
+# 第 1 引数は助詞まで含む文節（「tpm を」）。「インストール〜」に直接続ける
+install_step() {
+  local phrase="$1"
+  shift
+  echo "📦 ${phrase}インストールしています..."
+  if "$@"; then
+    echo "✅ ${phrase}インストールしました"
+  else
+    echo "⚠️ ${phrase}インストールできませんでした"
+    INSTALL_FAILED=$((INSTALL_FAILED + 1))
+  fi
+}
+
 echo "## links (lib/inventory.sh)"
 run_inventory apply
 
@@ -14,9 +30,7 @@ echo ""
 echo "## tpm"
 
 if [ ! -d ~/.tmux/plugins/tpm ]; then
-  echo "📦 tpm をインストールしています..."
-  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-  echo "✅ tpm をインストールしました: ~/.tmux/plugins/tpm"
+  install_step "tpm を" git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 else
   echo "⏭️ tpm は既にインストールされています"
 fi
@@ -28,9 +42,7 @@ echo "## mise"
 if [ -x "$(command -v mise)" ]; then
   mise trust -q "$DOTFILES_DIR/mise/config.toml"
   if [ -n "$(mise ls --missing --no-header 2>/dev/null)" ]; then
-    echo "📦 mise でツールをインストールしています..."
-    mise install
-    echo "✅ mise のツールをインストールしました"
+    install_step "mise でツールを" mise install
   else
     echo "⏭️ mise のツールは既にインストールされています"
   fi
@@ -44,17 +56,13 @@ echo "## fish plugins"
 
 if [ -x "$(command -v fish)" ]; then
   if ! fish -c "type -q fisher" 2>/dev/null; then
-    echo "📦 fisher をインストールしています..."
-    fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
-    echo "✅ fisher をインストールしました"
+    install_step "fisher を" fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
   else
     echo "⏭️ fisher は既にインストールされています"
   fi
 
   if [ ! -f ~/.config/fish/fish_plugins ] || ! grep -q "oh-my-fish/theme-bobthefish" ~/.config/fish/fish_plugins 2>/dev/null; then
-    echo "📦 bobthefish テーマをインストールしています..."
-    fish -c "fisher install oh-my-fish/theme-bobthefish"
-    echo "✅ bobthefish テーマをインストールしました"
+    install_step "bobthefish テーマを" fish -c "fisher install oh-my-fish/theme-bobthefish"
   else
     echo "⏭️ bobthefish テーマは既にインストールされています"
   fi
@@ -68,9 +76,7 @@ echo "## yazi flavors"
 
 if [ -x "$(command -v ya)" ]; then
   if [ ! -d ~/.config/yazi/flavors/dracula.yazi ]; then
-    echo "📦 Catppuccin Dracula テーマをインストールしています..."
-    ya pkg add yazi-rs/flavors:dracula
-    echo "✅ Catppuccin Dracula テーマをインストールしました"
+    install_step "Catppuccin Dracula テーマを" ya pkg add yazi-rs/flavors:dracula
   else
     echo "⏭️ Catppuccin Dracula テーマは既にインストールされています"
   fi
@@ -82,11 +88,23 @@ fi
 echo ""
 echo "## summary"
 
+FAILED=0
+
 if [ "$LINK_BLOCKED" -gt 0 ]; then
   echo "⚠️ symlink を作成できなかった箇所が ${LINK_BLOCKED} 件あります。"
   echo "   上の「実ディレクトリ / 実ファイル / 作成失敗」を確認し、退避または削除してから再実行してください。"
   echo "   検査だけなら: ./doctor.sh"
+  FAILED=1
+fi
+
+if [ "$INSTALL_FAILED" -gt 0 ]; then
+  echo "⚠️ インストールに失敗した項目が ${INSTALL_FAILED} 件あります。"
+  echo "   上の「インストールできませんでした」を確認し、原因を解消してから再実行してください。"
+  FAILED=1
+fi
+
+if [ "$FAILED" -gt 0 ]; then
   exit 1
 fi
 
-echo "✅ init 完了（symlink block なし）"
+echo "✅ init 完了（symlink block / インストール失敗なし）"
