@@ -52,6 +52,27 @@ fi
 
 
 echo ""
+echo "## brew packages"
+
+# shell 設定が前提とする CLI（fish/zsh の alias・keybind・関数から参照）。形式: <brew パッケージ名>:<コマンド名>
+BREW_PACKAGES="safe-rm:safe-rm fzf:fzf neovim:nvim"
+
+if [ -x "$(command -v brew)" ]; then
+  for entry in $BREW_PACKAGES; do
+    pkg="${entry%%:*}"
+    cmd="${entry##*:}"
+    if [ -x "$(command -v "$cmd")" ]; then
+      echo "⏭️ $pkg は既にインストールされています"
+    else
+      install_step "$pkg を" brew install "$pkg"
+    fi
+  done
+else
+  echo "⚠️ brew がインストールされていません。brew パッケージのインストールをスキップします"
+fi
+
+
+echo ""
 echo "## fish plugins"
 
 if [ -x "$(command -v fish)" ]; then
