@@ -125,7 +125,6 @@ inventory_define() {
   inv_section "agents (SSOT projection)"
   inv_home "$HOME/.agents"
   inv_symlink agents/AGENTS.md "$HOME/.agents/AGENTS.md"
-  inv_symlink agents/rules "$HOME/.agents/rules"
   inv_symlink agents/skills "$HOME/.agents/skills"
   inv_symlink agents/.skill-lock.json "$HOME/.agents/.skill-lock.json"
 
@@ -133,7 +132,6 @@ inventory_define() {
   inv_section "claude"
   inv_home "$HOME/.claude"
   inv_symlink agents/AGENTS.md "$HOME/.claude/CLAUDE.md"
-  inv_symlink agents/rules "$HOME/.claude/rules"
   inv_harness_skills "$HOME/.claude/skills" claude
   inv_replace harnesses/claude/settings.json "$HOME/.claude/settings.json"
   inv_symlink harnesses/claude/statusline.py "$HOME/.claude/statusline.py"
