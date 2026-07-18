@@ -28,11 +28,6 @@ function y
   rm -f -- "$tmp"
 end
 
-function vi
-  nvim --listen ~/.cache/nvim/server-$(date +%s).pipe $argv
-end
-
-
 # --------------------
 # Environment Variables
 # --------------------
@@ -130,6 +125,7 @@ abbr -a gp! git push --force
 # --------------------
 
 abbr -a rm safe-rm
+abbr -a vi nvim
 abbr -a br bun run
 abbr -a cc claude
 abbr -a ag agent
