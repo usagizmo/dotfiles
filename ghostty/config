@@ -11,6 +11,9 @@ font-size = 11
 # cmd+w を Ghostty の close_surface から解放し、herdr の close_pane に流す
 keybind = super+w=unbind
 
+# option を Alt として送る（alt+g 等の herdr keybind が © などの記号入力にならないように）
+macos-option-as-alt = true
+
 # 以下、herdr を優先してコメントアウト
 
 # 選択時に自動でクリップボードにコピー
