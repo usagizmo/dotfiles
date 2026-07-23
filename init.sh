@@ -112,6 +112,21 @@ fi
 
 
 echo ""
+echo "## herdr integrations"
+
+if [ -x "$(command -v herdr)" ]; then
+  # 未インストールだけでなく hook が古い場合（current 以外）も再インストールで更新する
+  if herdr integration status 2>/dev/null | grep -q "^claude: current"; then
+    echo "⏭️ herdr claude integration は既にインストールされています"
+  else
+    install_step "herdr claude integration を" herdr integration install claude
+  fi
+else
+  echo "⚠️ herdr がインストールされていません。integration のセットアップをスキップします"
+fi
+
+
+echo ""
 echo "## summary"
 
 FAILED=0

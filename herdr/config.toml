@@ -1,0 +1,22 @@
+onboarding = false
+
+[ui.toast]
+delivery = "system"
+
+[keys]
+prefix = "ctrl+q"
+split_vertical = "cmd+\\"
+split_horizontal = "cmd+shift+\\"
+close_pane = "cmd+w"
+workspace_picker = "ctrl+shift+q"
+navigate_workspace_up = "k"
+navigate_workspace_down = "j"
+
+# pane の等分割（組み込みアクションが無いため socket API 経由）
+[[keys.command]]
+key = "cmd+shift+e"
+type = "shell"
+command = "python3 ~/.config/herdr/equalize-panes.py"
+
+[theme]
+name = "one-dark"
