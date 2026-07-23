@@ -37,10 +37,10 @@
       // "titleBar.activeBackground": "#272828",
       // "titleBar.inactiveBackground": "#272828",
       // // Tab
-      // "editorGroupHeader.tabsBackground": "#1e1f1f",
+      // "editorGroupHeader.tabsBackground": "#1a1b1b",
       // "tab.activeBackground": "#292929",
-      // "tab.inactiveBackground": "#1e1f1f",
-      // "tab.border": "#1e1f1f",
+      // "tab.inactiveBackground": "#1a1b1b",
+      // "tab.border": "#1a1b1b",
       // // Activity Bar
       // "activityBar.background": "#1c1d1d",
       // // Side Bar
