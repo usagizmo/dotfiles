@@ -35,23 +35,6 @@ run_inventory apply
 
 
 echo ""
-echo "## tpm"
-
-if [ -d ~/.tmux/plugins/tpm ]; then
-  echo "📦 tpm を更新しています..."
-  if (cd ~/.tmux/plugins/tpm && git pull); then
-    echo "✅ tpm を更新しました"
-  else
-    echo "⚠️ tpm の更新に失敗しました"
-    UPDATE_FAILED=1
-  fi
-else
-  echo "⚠️ tpm がインストールされていません。init.sh を実行してください"
-  UPDATE_FAILED=1
-fi
-
-
-echo ""
 echo "## yazi"
 
 if [ -x "$(command -v ya)" ]; then
