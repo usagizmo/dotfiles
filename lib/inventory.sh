@@ -9,8 +9,7 @@
 #
 # 行の意味:
 #   inv_home <dir>                         harness home 等の実ディレクトリ
-#   inv_symlink <repo_rel> <dst>           通常 symlink（link_path）
-#   inv_replace <repo_rel> <dst>           実ファイルを差し替え symlink（settings 等）
+#   inv_symlink <repo_rel> <dst>           symlink（実ファイルは repo へ取り込んでから symlink 化）
 #   inv_harness_skills <dst> <harness>     agents + harnesses/<agent>（後勝ち）
 #   inv_collection <dst> [--exclude a,b] <repo_rel_src>...
 #   inv_seed <repo_rel> <dst>              初回 copy（check は存在確認のみ）
@@ -30,14 +29,6 @@ inv_symlink() {
   local rel=$1 dst=$2
   case "$DOTFILES_OP" in
     apply) link_from_repo "$rel" "$dst" ;;
-    check) check_symlink "$dst" "$DOTFILES_DIR/$rel" ;;
-  esac
-}
-
-inv_replace() {
-  local rel=$1 dst=$2
-  case "$DOTFILES_OP" in
-    apply) link_replace "$DOTFILES_DIR/$rel" "$dst" ;;
     check) check_symlink "$dst" "$DOTFILES_DIR/$rel" ;;
   esac
 }
@@ -102,7 +93,7 @@ inv_seed() {
 inv_symlink_if_host() {
   local host_dir=$1 rel=$2 dst=$3
   if [ -d "$host_dir" ]; then
-    inv_replace "$rel" "$dst"
+    inv_symlink "$rel" "$dst"
   else
     case "$DOTFILES_OP" in
       apply) echo "⚠️ $host_dir が無いためスキップ: $dst" ;;
@@ -133,7 +124,7 @@ inventory_define() {
   inv_home "$HOME/.claude"
   inv_symlink agents/AGENTS.md "$HOME/.claude/CLAUDE.md"
   inv_harness_skills "$HOME/.claude/skills" claude
-  inv_replace harnesses/claude/settings.json "$HOME/.claude/settings.json"
+  inv_symlink harnesses/claude/settings.json "$HOME/.claude/settings.json"
   inv_symlink harnesses/claude/statusline.py "$HOME/.claude/statusline.py"
 
   # --- Codex ---
@@ -180,7 +171,7 @@ inventory_define() {
   inv_home "$HOME/.pi/agent"
   inv_home "$HOME/.pi/agent/extensions"
   inv_symlink agents/AGENTS.md "$HOME/.pi/agent/AGENTS.md"
-  inv_replace harnesses/pi/settings.json "$HOME/.pi/agent/settings.json"
+  inv_symlink harnesses/pi/settings.json "$HOME/.pi/agent/settings.json"
   inv_collection "$HOME/.pi/agent/extensions" harnesses/pi/extensions
   # pi は ~/.agents/skills をネイティブに読む（skills union なし）
 
