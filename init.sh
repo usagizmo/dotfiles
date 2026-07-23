@@ -114,6 +114,15 @@ fi
 echo ""
 echo "## herdr integrations"
 
+# herdr skill は外部インストール（git 管理外）のため、無ければ取得する
+if [ ! -f "$DOTFILES_DIR/agents/skills/herdr/SKILL.md" ]; then
+  mkdir -p "$DOTFILES_DIR/agents/skills/herdr"
+  install_step "herdr skill を" curl -fsSL https://raw.githubusercontent.com/ogulcancelik/herdr/HEAD/SKILL.md \
+    -o "$DOTFILES_DIR/agents/skills/herdr/SKILL.md"
+else
+  echo "⏭️ herdr skill は既にインストールされています"
+fi
+
 if [ -x "$(command -v herdr)" ]; then
   # 未インストールだけでなく hook が古い場合（current 以外）も再インストールで更新する
   if herdr integration status 2>/dev/null | grep -q "^claude: current"; then
