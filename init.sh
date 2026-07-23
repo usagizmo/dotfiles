@@ -97,6 +97,21 @@ fi
 
 
 echo ""
+echo "## ghostty defaults"
+
+# macOS 標準タブ機能の「すべてのタブを表示」(⇧⌘\) が herdr の split_horizontal を
+# 食うため、メニューショートカットを使わない組み合わせ (⌃⌥⇧⌘\) へ退避する
+# （Ghostty の config では AppKit メニュー由来のショートカットを変更できない）
+if defaults write com.mitchellh.ghostty NSUserKeyEquivalents -dict-add "Show All Tabs" '@~^$\\' &&
+  defaults write com.mitchellh.ghostty NSUserKeyEquivalents -dict-add "すべてのタブを表示" '@~^$\\'; then
+  echo "✅ Show All Tabs のショートカットを退避しました（Ghostty 再起動後に有効）"
+else
+  echo "⚠️ Ghostty の NSUserKeyEquivalents を設定できませんでした"
+  INSTALL_FAILED=$((INSTALL_FAILED + 1))
+fi
+
+
+echo ""
 echo "## summary"
 
 FAILED=0
