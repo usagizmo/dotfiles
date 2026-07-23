@@ -177,7 +177,6 @@ inventory_define() {
 
   # --- Shell / editor / tools ---
   inv_section "shell / editor / tools"
-  inv_symlink tmux/.tmux.conf "$HOME/.tmux.conf"
   inv_home "$HOME/.config/mise"
   inv_symlink mise/config.toml "$HOME/.config/mise/config.toml"
   inv_home "$HOME/.config/fish"

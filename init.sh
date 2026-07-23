@@ -27,16 +27,6 @@ run_inventory apply
 
 
 echo ""
-echo "## tpm"
-
-if [ ! -d ~/.tmux/plugins/tpm ]; then
-  install_step "tpm を" git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-else
-  echo "⏭️ tpm は既にインストールされています"
-fi
-
-
-echo ""
 echo "## mise"
 
 if [ -x "$(command -v mise)" ]; then
