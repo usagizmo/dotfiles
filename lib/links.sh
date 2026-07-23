@@ -38,21 +38,13 @@ doctor_warn() {
   echo "⚠️ $1"
 }
 
-# dst が「symlink にできない実体」なら警告して non-zero
-link_refuse_if_solid() {
+# dst が実ディレクトリなら警告して non-zero（symlink 処理後に呼ぶ）
+link_refuse_if_dir() {
   local dst=$1
-  if [ -L "$dst" ]; then
-    return 0
-  fi
   if [ -d "$dst" ]; then
     link_blocked "$dst は実ディレクトリです（symlink であるべき）。退避または削除してから init.sh を再実行してください"
     return 1
   fi
-  if [ -e "$dst" ]; then
-    link_blocked "$dst は実ファイルです（symlink であるべき）。退避または削除してから init.sh を再実行してください"
-    return 1
-  fi
-  return 0
 }
 
 # 第3引数: new | force
@@ -73,6 +65,8 @@ try_symlink() {
   return 1
 }
 
+# 実ファイルは内容を repo 側へ取り込んでから symlink 化（差分は git で確認・discard 可能）。
+# repo 外を指す symlink・実ディレクトリは触らず警告
 link_path() {
   local src=$1 dst=$2 current parent
   if [ ! -e "$src" ] && [ ! -L "$src" ]; then
@@ -94,7 +88,23 @@ link_path() {
       return 1
     fi
   fi
-  link_refuse_if_solid "$dst" || return 1
+  link_refuse_if_dir "$dst" || return 1
+  if [ -e "$dst" ]; then
+    if ! cmp -s "$src" "$dst"; then
+      if cp "$dst" "$src"; then
+        echo "📥 実ファイルの内容を repo に取り込みました: $src <- $dst"
+      else
+        link_blocked "$dst の内容を $src へ取り込めなかったため symlink を作成できません"
+        return 1
+      fi
+    fi
+    if rm "$dst"; then
+      echo "🗑️ 既存のファイルを削除しました: $dst"
+    else
+      link_blocked "$dst の削除に失敗したため symlink を作成できません"
+      return 1
+    fi
+  fi
   try_symlink "$src" "$dst" new
 }
 
@@ -118,7 +128,11 @@ link_collection_entry() {
     try_symlink "$src" "$dst" force
     return $?
   fi
-  link_refuse_if_solid "$dst" || return 1
+  link_refuse_if_dir "$dst" || return 1
+  if [ -e "$dst" ]; then
+    link_blocked "$dst は実ファイルです（symlink であるべき）。退避または削除してから init.sh を再実行してください"
+    return 1
+  fi
   try_symlink "$src" "$dst" new
 }
 
@@ -216,37 +230,6 @@ copy_if_missing() {
   fi
   [ -L "$dst" ] && rm "$dst"
   cp "$src" "$dst" 2>/dev/null && echo "✅ ファイルをコピーしました: $dst <- $src"
-}
-
-# 実ファイルは差し替え。実ディレクトリは消さず警告
-link_replace() {
-  local src=$1 dst=$2 current
-  if [ ! -e "$src" ] && [ ! -L "$src" ]; then
-    link_blocked "symlink 元が存在しないためスキップします: $src"
-    return 1
-  fi
-  if [ -L "$dst" ]; then
-    current="$(readlink "$dst")"
-    if [ "$current" = "$src" ]; then
-      echo "⏭️ $dst は既にシンボリックリンクです"
-      return 0
-    fi
-    try_symlink "$src" "$dst" force
-    return $?
-  fi
-  if [ -d "$dst" ]; then
-    link_blocked "$dst は実ディレクトリです（symlink であるべき）。退避または削除してから init.sh を再実行してください"
-    return 1
-  fi
-  if [ -e "$dst" ]; then
-    if rm "$dst"; then
-      echo "🗑️ 既存のファイルを削除しました: $dst"
-    else
-      link_blocked "$dst の削除に失敗したため symlink を作成できません"
-      return 1
-    fi
-  fi
-  try_symlink "$src" "$dst" new
 }
 
 # ---------- doctor (check) primitives ----------
