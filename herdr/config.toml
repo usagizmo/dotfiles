@@ -30,3 +30,6 @@ command = "python3 ~/.config/herdr/remove-worktree.py"
 
 [theme]
 name = "one-dark"
+
+[ui]
+agent_panel_sort = "priority"
