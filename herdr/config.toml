@@ -8,7 +8,7 @@ prefix = "ctrl+q"
 split_vertical = "cmd+\\"
 split_horizontal = "cmd+shift+\\"
 close_pane = "cmd+w"
-workspace_picker = "ctrl+shift+q"
+close_tab = "prefix+x"
 navigate_workspace_up = "k"
 navigate_workspace_down = "j"
 
