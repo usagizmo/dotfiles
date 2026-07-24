@@ -1,3 +1,7 @@
+# herdr が作る worktree 内の repo 設定を一括で信頼する
+[settings]
+trusted_config_paths = ["~/.herdr/worktrees"]
+
 [tools]
 node = "24"
 uv = "latest"
