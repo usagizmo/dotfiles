@@ -192,6 +192,7 @@ inventory_define() {
   inv_home "$HOME/.config/herdr"
   inv_symlink herdr/config.toml "$HOME/.config/herdr/config.toml"
   inv_symlink herdr/equalize-panes.py "$HOME/.config/herdr/equalize-panes.py"
+  inv_symlink herdr/remove-worktree.py "$HOME/.config/herdr/remove-worktree.py"
   inv_home "$HOME/Library/KeyBindings"
   inv_symlink Library/KeyBindings/DefaultKeyBinding.dict \
     "$HOME/Library/KeyBindings/DefaultKeyBinding.dict"
