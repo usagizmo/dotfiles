@@ -16,7 +16,17 @@ navigate_workspace_down = "j"
 [[keys.command]]
 key = "cmd+shift+e"
 type = "shell"
+description = "equalize panes"
 command = "python3 ~/.config/herdr/equalize-panes.py"
+
+# worktree を branch ごと削除（組み込み remove_worktree は branch を残すため）
+[[keys.command]]
+key = "prefix+shift+x"
+type = "popup"
+width = 60
+height = 8
+description = "remove worktree + branch"
+command = "python3 ~/.config/herdr/remove-worktree.py"
 
 [theme]
 name = "one-dark"
