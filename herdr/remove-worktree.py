@@ -10,6 +10,45 @@ import json
 import os
 import subprocess
 import sys
+import time
+
+TRASH = os.path.expanduser("~/.wt-trash")
+
+# 削除の所要時間はファイル数で決まる。node_modules / cargo target を
+# rm する前に同一ボリューム内 rename で退避し、実削除は background に逃がす
+HEAVY_DIR_NAMES = {"node_modules", "target", "dist", ".turbo"}
+HEAVY_SCAN_DEPTH = 4
+
+
+def evacuate_heavy_dirs(checkout: str) -> None:
+    os.makedirs(TRASH, exist_ok=True)
+    moved = False
+    for root, dirs, _files in os.walk(checkout):
+        depth = os.path.relpath(root, checkout).count(os.sep)
+        if depth >= HEAVY_SCAN_DEPTH:
+            dirs[:] = []
+            continue
+        dirs[:] = [d for d in dirs if d != ".git"]
+        for d in list(dirs):
+            if d not in HEAVY_DIR_NAMES:
+                continue
+            src = os.path.join(root, d)
+            if os.path.islink(src):
+                continue  # 共有 cargo target 等の symlink は checkout ごと消えるだけでよい
+            dest = os.path.join(TRASH, f"{d}-{time.time_ns()}")
+            try:
+                os.rename(src, dest)  # 同一ボリューム内なら即完了
+                moved = True
+                dirs.remove(d)
+            except OSError:
+                pass  # 別ボリューム等で rename できなければ従来どおり rm に任せる
+    if moved:
+        subprocess.Popen(
+            ["/bin/sh", "-c", f"rm -rf {TRASH}/*"],
+            start_new_session=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
 
 def notify(title: str, body: str) -> None:
@@ -55,6 +94,8 @@ except (EOFError, KeyboardInterrupt):
     sys.exit(0)
 if answer.strip().lower() not in ("", "y", "yes"):
     sys.exit(0)
+
+evacuate_heavy_dirs(checkout)
 
 rm = subprocess.run(["herdr", "worktree", "remove", "--workspace", ws, "--json"],
                     capture_output=True, text=True)
