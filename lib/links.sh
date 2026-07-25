@@ -252,10 +252,10 @@ check_symlink() {
     resolved="$(realpath "$dst" 2>/dev/null || true)"
     expected_resolved="$(realpath "$expected" 2>/dev/null || true)"
     if [ -n "$resolved" ] && [ -n "$expected_resolved" ] && [ "$resolved" = "$expected_resolved" ]; then
-      doctor_warn "$dst は expected と実体は一致するが path 表記が違う: $current （expected: $expected）"
+      doctor_warn "$dst は expected と実体は一致するが path 表記が違う: $current （expected: ${expected}）"
       return 0
     fi
-    doctor_fail "$dst のリンク先が違う: $current （expected: $expected）"
+    doctor_fail "$dst のリンク先が違う: $current （expected: ${expected}）"
     return 0
   fi
 
@@ -267,7 +267,7 @@ check_symlink() {
     doctor_fail "$dst は実ファイルです（symlink であるべき）"
     return 0
   fi
-  doctor_fail "$dst がありません（expected symlink -> $expected）"
+  doctor_fail "$dst がありません（expected symlink -> ${expected}）"
 }
 
 check_collection_root() {
@@ -446,7 +446,7 @@ check_seed_file() {
     placeholder=$(echo "$line" | awk '{print $4}')
     actual=$(grep -E "^set -gx $var " "$dst" | awk '{print $4}')
     if [ -z "$actual" ]; then
-      doctor_warn "$dst に $var が定義されていません（テンプレート: $template）"
+      doctor_warn "$dst に $var が定義されていません（テンプレート: ${template}）"
       missing=1
     elif [ "$actual" = "$placeholder" ]; then
       doctor_warn "$dst の $var が placeholder のままです: $placeholder"
