@@ -252,10 +252,10 @@ check_symlink() {
     resolved="$(realpath "$dst" 2>/dev/null || true)"
     expected_resolved="$(realpath "$expected" 2>/dev/null || true)"
     if [ -n "$resolved" ] && [ -n "$expected_resolved" ] && [ "$resolved" = "$expected_resolved" ]; then
-      doctor_warn "$dst は expected と実体は一致するが path 表記が違う: $current （expected: $expected）"
+      doctor_warn "$dst は expected と実体は一致するが path 表記が違う: $current （expected: ${expected}）"
       return 0
     fi
-    doctor_fail "$dst のリンク先が違う: $current （expected: $expected）"
+    doctor_fail "$dst のリンク先が違う: $current （expected: ${expected}）"
     return 0
   fi
 
@@ -267,7 +267,7 @@ check_symlink() {
     doctor_fail "$dst は実ファイルです（symlink であるべき）"
     return 0
   fi
-  doctor_fail "$dst がありません（expected symlink -> $expected）"
+  doctor_fail "$dst がありません（expected symlink -> ${expected}）"
 }
 
 check_collection_root() {
@@ -446,7 +446,7 @@ check_seed_file() {
     placeholder=$(echo "$line" | awk '{print $4}')
     actual=$(grep -E "^set -gx $var " "$dst" | awk '{print $4}')
     if [ -z "$actual" ]; then
-      doctor_warn "$dst に $var が定義されていません（テンプレート: $template）"
+      doctor_warn "$dst に $var が定義されていません（テンプレート: ${template}）"
       missing=1
     elif [ "$actual" = "$placeholder" ]; then
       doctor_warn "$dst の $var が placeholder のままです: $placeholder"
@@ -456,6 +456,29 @@ check_seed_file() {
   if [ "$missing" -eq 0 ]; then
     doctor_pass "$dst が存在し、テンプレートの変数が設定済み（seed）"
   fi
+}
+
+# check_guard_dir <dst> [allow_csv]
+# 「管理下 symlink と allowlist 以外は置かれないはず」の dir を監視する。
+# 外部ツールが落とした想定外エントリを warn で可視化する（read-only。削除はしない）
+check_guard_dir() {
+  local dst=$1 allow_csv=${2:-} entry name unexpected=0
+  if [ ! -d "$dst" ] || [ -L "$dst" ]; then
+    doctor_fail "$dst が実ディレクトリではありません（監視対象 dir）"
+    return 0
+  fi
+  for entry in "$dst"/* "$dst"/.[!.]* "$dst"/..?*; do
+    [ -e "$entry" ] || [ -L "$entry" ] || continue
+    name="$(basename "$entry")"
+    _is_excluded "$name" "$allow_csv" && continue
+    is_dotfiles_managed_link "$entry" && continue
+    doctor_warn "$dst に想定外のエントリがあります: ${name}（外部ツールが書き込んだ可能性）"
+    unexpected=$((unexpected + 1))
+  done
+  if [ "$unexpected" -eq 0 ]; then
+    doctor_pass "$dst は管理下エントリのみ（想定外の書き込みなし）"
+  fi
+  return 0
 }
 
 check_home_dir() {
