@@ -14,6 +14,7 @@
 #   inv_collection <dst> [--exclude a,b] <repo_rel_src>...
 #   inv_seed <repo_rel> <dst>              初回 copy（check は存在確認のみ）
 #   inv_symlink_if_host <host_dir> <repo_rel> <dst>  host があるときだけ
+#   inv_guard_dir <dst> [allow_csv]        doctor 専用。想定外エントリを warn
 
 # ---------- inventory 操作（apply / check） ----------
 
@@ -102,6 +103,14 @@ inv_symlink_if_host() {
   fi
 }
 
+# hooks 等の tripwire dir。apply は何もしない（検知専用。勝手に消さない）
+inv_guard_dir() {
+  local dst=$1 allow_csv=${2:-}
+  case "$DOTFILES_OP" in
+    check) check_guard_dir "$dst" "$allow_csv" ;;
+  esac
+}
+
 inv_section() {
   # apply / check とも同じ見出し形式（doctor と揃える）
   echo ""
@@ -110,6 +119,15 @@ inv_section() {
 
 # ---------- SSOT: 配線一覧 ----------
 # harness / ツールを足すときは、ここに 1 ブロック足すだけで init と doctor に反映される。
+#
+# harnesses/<agent>/hooks.json（中身は `{"hooks": {}}`）は空 overlay ではなく tripwire。
+# 外部ツールによる hooks の書き換えを次の 3 経路で検知する:
+#   - symlink 経由の in-place 書き込み → repo 側に git diff が出る
+#   - unlink して実ファイルで置換      → doctor.sh が ❌ + 非ゼロ終了
+#   - hooks dir への別名ファイル投下   → inv_guard_dir が ⚠️
+# 空であること自体が基準線。中身を埋めたり配線を外したりしない。
+# inv_guard_dir は hooks 専用 dir にだけ張る。codex / cursor は hooks.json が
+# harness home 直下（vendor ファイルと同居）なので symlink check のみで守る。
 
 inventory_define() {
   # --- Agents 共通 SSOT 投影 ---
@@ -126,6 +144,10 @@ inventory_define() {
   inv_harness_skills "$HOME/.claude/skills" claude
   inv_symlink harnesses/claude/settings.json "$HOME/.claude/settings.json"
   inv_symlink harnesses/claude/statusline.py "$HOME/.claude/statusline.py"
+  inv_home "$HOME/.claude/hooks"
+  inv_symlink harnesses/claude/hooks/herdr-agent-state.sh \
+    "$HOME/.claude/hooks/herdr-agent-state.sh"
+  inv_guard_dir "$HOME/.claude/hooks"
 
   # --- Codex ---
   # Codex は ~/.agents/skills をネイティブに読む。union は harness 固有 overlay のみ
@@ -141,6 +163,7 @@ inventory_define() {
   inv_symlink harnesses/copilot/copilot-instructions.md "$HOME/.copilot/copilot-instructions.md"
   inv_symlink harnesses/copilot/mcp-config.json "$HOME/.copilot/mcp-config.json"
   inv_symlink harnesses/copilot/hooks/hooks.json "$HOME/.copilot/hooks/hooks.json"
+  inv_guard_dir "$HOME/.copilot/hooks"
 
   # --- Cursor CLI ---
   inv_section "cursor"
@@ -160,11 +183,12 @@ inventory_define() {
   inv_section "grok"
   inv_home "$HOME/.grok"
   inv_symlink harnesses/grok/hooks/hooks.json "$HOME/.grok/hooks/hooks.json"
+  inv_guard_dir "$HOME/.grok/hooks"
   inv_harness_skills "$HOME/.grok/skills" grok
 
   # --- Pi ---
   # settings は好みのみ。auth/trust/sessions/git cache は tracked にしない
-  # Orca/Superset が書く extensions 実ファイルは union で温存（dotfiles 管理下 link のみ掃除）
+  # extensions は union（管理外の実ファイルは温存し、guard で可視化するだけ）
   # /consult /finish は extensions/workflow.ts（slash 起動の SSOT。prompts は使わない）
   inv_section "pi"
   inv_home "$HOME/.pi"
@@ -173,6 +197,7 @@ inventory_define() {
   inv_symlink agents/AGENTS.md "$HOME/.pi/agent/AGENTS.md"
   inv_symlink harnesses/pi/settings.json "$HOME/.pi/agent/settings.json"
   inv_collection "$HOME/.pi/agent/extensions" harnesses/pi/extensions
+  inv_guard_dir "$HOME/.pi/agent/extensions"
   # pi は ~/.agents/skills をネイティブに読む（skills union なし）
 
   # --- Shell / editor / tools ---
