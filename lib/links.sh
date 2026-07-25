@@ -458,6 +458,29 @@ check_seed_file() {
   fi
 }
 
+# check_guard_dir <dst> [allow_csv]
+# 「管理下 symlink と allowlist 以外は置かれないはず」の dir を監視する。
+# 外部ツールが落とした想定外エントリを warn で可視化する（read-only。削除はしない）
+check_guard_dir() {
+  local dst=$1 allow_csv=${2:-} entry name unexpected=0
+  if [ ! -d "$dst" ] || [ -L "$dst" ]; then
+    doctor_fail "$dst が実ディレクトリではありません（監視対象 dir）"
+    return 0
+  fi
+  for entry in "$dst"/* "$dst"/.[!.]* "$dst"/..?*; do
+    [ -e "$entry" ] || [ -L "$entry" ] || continue
+    name="$(basename "$entry")"
+    _is_excluded "$name" "$allow_csv" && continue
+    is_dotfiles_managed_link "$entry" && continue
+    doctor_warn "$dst に想定外のエントリがあります: ${name}（外部ツールが書き込んだ可能性）"
+    unexpected=$((unexpected + 1))
+  done
+  if [ "$unexpected" -eq 0 ]; then
+    doctor_pass "$dst は管理下エントリのみ（想定外の書き込みなし）"
+  fi
+  return 0
+}
+
 check_home_dir() {
   local dst=$1
   if [ -d "$dst" ] && [ ! -L "$dst" ]; then
