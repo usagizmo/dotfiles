@@ -126,6 +126,9 @@ inventory_define() {
   inv_harness_skills "$HOME/.claude/skills" claude
   inv_symlink harnesses/claude/settings.json "$HOME/.claude/settings.json"
   inv_symlink harnesses/claude/statusline.py "$HOME/.claude/statusline.py"
+  inv_home "$HOME/.claude/hooks"
+  inv_symlink harnesses/claude/hooks/herdr-agent-state.sh \
+    "$HOME/.claude/hooks/herdr-agent-state.sh"
 
   # --- Codex ---
   # Codex は ~/.agents/skills をネイティブに読む。union は harness 固有 overlay のみ
