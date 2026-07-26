@@ -493,3 +493,20 @@ check_home_dir() {
     doctor_fail "$dst がありません"
   fi
 }
+
+# tracked ファイルに絶対 home パスが無いか検査する。
+# 別マシンで init.sh すると壊れるうえ、public repo ではユーザー名が露出する。
+# 外部ツール（herdr 等）が tracked な設定へ書き戻すことがあるので定期的に見る
+check_absolute_home_paths() {
+  local hit found=0
+  while IFS= read -r hit; do
+    [ -n "$hit" ] || continue
+    doctor_warn "絶対 home パスが tracked ファイルにあります: ${hit}（\$HOME か ~ に置き換える）"
+    found=$((found + 1))
+  # [U] / [h] は自己マッチ回避。この行自体が検出対象にならないようにする
+  done < <(git -C "$DOTFILES_DIR" grep -nE "(/[U]sers/|/[h]ome/)[^/[:space:]\"']+/" -- . 2>/dev/null || true)
+  if [ "$found" -eq 0 ]; then
+    doctor_pass "tracked ファイルに絶対 home パスなし（別環境で init.sh 可能）"
+  fi
+  return 0
+}
