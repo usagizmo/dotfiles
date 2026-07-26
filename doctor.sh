@@ -48,6 +48,10 @@ echo "## inventory"
 run_inventory check
 
 echo ""
+echo "## 移植性"
+check_absolute_home_paths
+
+echo ""
 echo "## summary"
 echo "   ok=$DOCTOR_OK  warn=$DOCTOR_WARN  fail=$DOCTOR_FAIL"
 
