@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""フォーカス中の workspace の worktree を branch ごと削除する。
+"""worktree を branch ごと削除する。
 
-組み込みの remove_worktree は checkout しか消さず branch が残るため、
-herdr の popup（type = "popup" の custom command）内で確認したうえで
-`herdr worktree remove` と `git branch -d` を続けて実行する。
+組み込みの remove_worktree は **checkout しか消さない**（branch も node_modules も残る）ため、
+重いディレクトリを退避してから `herdr worktree remove` と `git branch -d` を続けて実行する。
+
+2 通りの呼び方がある:
+
+- popup（`type = "popup"` の custom command）— `HERDR_ACTIVE_WORKSPACE_ID` を読み、確認してから消す
+- 非対話 — `--workspace <id> --yes`。エージェントが着地済みの worktree を片付けるときに使う
 """
 
+import argparse
 import json
 import os
 import subprocess
@@ -65,9 +70,14 @@ def fail(body: str) -> None:
     sys.exit(1)
 
 
-ws = os.environ.get("HERDR_ACTIVE_WORKSPACE_ID")
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--workspace", help="対象 workspace id（省略時は HERDR_ACTIVE_WORKSPACE_ID）")
+parser.add_argument("--yes", action="store_true", help="確認を省く（非対話実行用）")
+args = parser.parse_args()
+
+ws = args.workspace or os.environ.get("HERDR_ACTIVE_WORKSPACE_ID")
 if not ws:
-    fail("HERDR_ACTIVE_WORKSPACE_ID がありません")
+    fail("workspace id がありません（--workspace か HERDR_ACTIVE_WORKSPACE_ID）")
 
 # worktree list は workspace とのマッピングが欠けることがあるため、
 # worktree 情報を直接持つ workspace list から解決する
@@ -88,12 +98,13 @@ head = subprocess.run(["git", "-C", checkout, "branch", "--show-current"],
 branch = head.stdout.strip()
 if not branch:
     fail("checkout の branch を特定できません（detached HEAD?）")
-try:
-    answer = input(f"worktree と branch {branch} を削除しますか？ [Y/n] ")
-except (EOFError, KeyboardInterrupt):
-    sys.exit(0)
-if answer.strip().lower() not in ("", "y", "yes"):
-    sys.exit(0)
+if not args.yes:
+    try:
+        answer = input(f"worktree と branch {branch} を削除しますか？ [Y/n] ")
+    except (EOFError, KeyboardInterrupt):
+        sys.exit(0)
+    if answer.strip().lower() not in ("", "y", "yes"):
+        sys.exit(0)
 
 evacuate_heavy_dirs(checkout)
 
