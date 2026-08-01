@@ -12,7 +12,7 @@ UPDATE_FAILED=0
 
 echo "## agent skills (external)"
 
-# agents/.skill-lock.json 管理の外部 skill (vercel-cli / sentry-cli 等) を更新する
+# agents/.skill-lock.json 管理の外部 skill (agent-browser / skill-creator) を更新する
 if [ -x "$(command -v bunx)" ]; then
   echo "📦 外部取得の agent skills を更新しています..."
   if (cd "$DOTFILES_DIR/agents" && bunx skills update -y); then
