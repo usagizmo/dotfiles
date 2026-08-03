@@ -121,13 +121,7 @@ inv_section() {
 # harness / ツールを足すときは、ここに 1 ブロック足すだけで init と doctor に反映される。
 #
 # harnesses/<agent>/hooks.json（中身は `{"hooks": {}}`）は空 overlay ではなく tripwire。
-# 外部ツールによる hooks の書き換えを次の 3 経路で検知する:
-#   - symlink 経由の in-place 書き込み → repo 側に git diff が出る
-#   - unlink して実ファイルで置換      → doctor.sh が ❌ + 非ゼロ終了
-#   - hooks dir への別名ファイル投下   → inv_guard_dir が ⚠️
-# 空であること自体が基準線。中身を埋めたり配線を外したりしない。
-# inv_guard_dir は hooks 専用 dir にだけ張る。codex / cursor は hooks.json が
-# harness home 直下（vendor ファイルと同居）なので symlink check のみで守る。
+# 空であること自体が基準線。中身を埋めたり配線を外したりしない（規約は AGENTS.md）。
 
 inventory_define() {
   # --- Agents 共通 SSOT 投影 ---
