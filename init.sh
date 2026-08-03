@@ -117,7 +117,7 @@ echo "## herdr integrations"
 # herdr skill は外部インストール（git 管理外）のため、無ければ取得する
 if [ ! -f "$DOTFILES_DIR/agents/skills/herdr/SKILL.md" ]; then
   mkdir -p "$DOTFILES_DIR/agents/skills/herdr"
-  install_step "herdr skill を" curl -fsSL https://raw.githubusercontent.com/ogulcancelik/herdr/HEAD/SKILL.md \
+  install_step "herdr skill を" curl -fsSL https://raw.githubusercontent.com/herdrdev/herdr/HEAD/skills/herdr/SKILL.md \
     -o "$DOTFILES_DIR/agents/skills/herdr/SKILL.md"
 else
   echo "⏭️ herdr skill は既にインストールされています"
