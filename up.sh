@@ -39,9 +39,8 @@ if [ -x "$(command -v herdr)" ]; then
     install -m 644 "$HERDR_SKILL_TMP" "$DOTFILES_DIR/agents/skills/herdr/SKILL.md"
     echo "✅ herdr skill を $(herdr --version) から更新しました"
   else
-    # 原因を捨てない。版数以外（socket 断・権限）でも同じ文言になると切り分けができない
+    # 原因を捨てない。socket 断・権限でも同じ文言になると切り分けができない
     echo "⚠️ herdr skill を生成できませんでした: $(head -n 1 "$HERDR_SKILL_ERR")"
-    echo "   （--skill は herdr 0.8.0 以降。herdr の外で \`herdr update\`）"
     UPDATE_FAILED=1
   fi
   rm -f "$HERDR_SKILL_TMP" "$HERDR_SKILL_ERR"
