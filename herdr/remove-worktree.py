@@ -108,7 +108,7 @@ if not args.yes:
 
 evacuate_heavy_dirs(checkout)
 
-rm = subprocess.run(["herdr", "worktree", "remove", "--workspace", ws, "--json"],
+rm = subprocess.run(["herdr", "worktree", "remove", "--workspace", ws],
                     capture_output=True, text=True)
 if rm.returncode != 0:
     fail(rm.stderr.strip() or rm.stdout.strip() or "worktree remove に失敗")
