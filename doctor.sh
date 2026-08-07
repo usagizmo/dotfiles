@@ -48,6 +48,10 @@ echo "## inventory"
 run_inventory check
 
 echo ""
+echo "## commit gate"
+check_commit_gate
+
+echo ""
 echo "## 移植性"
 check_absolute_home_paths
 
