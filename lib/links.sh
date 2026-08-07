@@ -80,7 +80,7 @@ link_path() {
     if [ "$current" = "$src" ]; then
       echo "⏭️ $dst のシンボリックリンクは既に存在します"
       return 0
-    elif [ "${current#$DOTFILES_DIR/}" != "$current" ]; then
+    elif [ "${current#"$DOTFILES_DIR"/}" != "$current" ]; then
       try_symlink "$src" "$dst" force
       return $?
     else
@@ -492,6 +492,30 @@ check_home_dir() {
   else
     doctor_fail "$dst がありません"
   fi
+}
+
+# commit gate（.githooks/pre-commit）の配線を検査する。
+# 道具が無いと hook は commit を止めるだけになるので、道具の有無もここで見る。修復は ./init.sh
+check_commit_gate() {
+  local current tool
+  # 未設定なら git config は exit 1（doctor.sh は set -e なので握る）
+  current="$(git -C "$DOTFILES_DIR" config --get core.hooksPath || true)"
+  if [ "$current" != ".githooks" ]; then
+    doctor_fail "core.hooksPath が .githooks ではありません: ${current:-未設定}"
+  elif [ ! -x "$DOTFILES_DIR/.githooks/pre-commit" ]; then
+    doctor_fail "$DOTFILES_DIR/.githooks/pre-commit が実行可能ではありません"
+  else
+    doctor_pass "core.hooksPath=.githooks（pre-commit は実行可能）"
+  fi
+  # hook と同じ解決順で見る（hook は mise activate が無い環境向けに shims も足す）
+  for tool in oxfmt oxlint; do
+    if command -v "$tool" >/dev/null 2>&1 || [ -x "$HOME/.local/share/mise/shims/$tool" ]; then
+      doctor_pass "$tool を hook から解決できます"
+    else
+      doctor_fail "$tool が見つかりません（この状態では commit が止まります）"
+    fi
+  done
+  return 0
 }
 
 # tracked ファイルに絶対 home パスが無いか検査する。
