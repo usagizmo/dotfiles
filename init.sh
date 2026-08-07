@@ -27,6 +27,22 @@ run_inventory apply
 
 
 echo ""
+echo "## commit gate"
+
+# .githooks/pre-commit（staged なファイルに oxfmt / oxlint をかける）を有効にする。
+# 相対パスにするのは worktree でも各 worktree 直下の .githooks を指させるため
+HOOKS_PATH="$(git -C "$DOTFILES_DIR" config --get core.hooksPath || true)"
+if [ "$HOOKS_PATH" = ".githooks" ]; then
+  echo "⏭️ core.hooksPath は既に .githooks です"
+elif git -C "$DOTFILES_DIR" config core.hooksPath .githooks; then
+  echo "✅ core.hooksPath を .githooks に設定しました"
+else
+  echo "⚠️ core.hooksPath を設定できませんでした"
+  INSTALL_FAILED=$((INSTALL_FAILED + 1))
+fi
+
+
+echo ""
 echo "## mise"
 
 if [ -x "$(command -v mise)" ]; then

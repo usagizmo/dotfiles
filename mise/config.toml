@@ -4,4 +4,7 @@ trusted_config_paths = ["~/.herdr/worktrees"]
 
 [tools]
 node = "24"
+# JS/TS 系の lint / format。commit gate（.githooks/pre-commit）とエディタの両方がこれを使う
+oxfmt = "latest"
+oxlint = "latest"
 uv = "latest"
