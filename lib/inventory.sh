@@ -151,28 +151,6 @@ inventory_define() {
   inv_collection "$HOME/.codex/skills" harnesses/codex/skills
   inv_symlink harnesses/codex/hooks.json "$HOME/.codex/hooks.json"
 
-  # --- Copilot ---
-  inv_section "copilot"
-  inv_home "$HOME/.copilot"
-  inv_symlink harnesses/copilot/copilot-instructions.md "$HOME/.copilot/copilot-instructions.md"
-  inv_symlink harnesses/copilot/mcp-config.json "$HOME/.copilot/mcp-config.json"
-  inv_symlink harnesses/copilot/hooks/hooks.json "$HOME/.copilot/hooks/hooks.json"
-  inv_guard_dir "$HOME/.copilot/hooks"
-
-  # --- Cursor CLI ---
-  inv_section "cursor"
-  inv_home "$HOME/.cursor"
-  inv_symlink agents/AGENTS.md "$HOME/.cursor/AGENTS.md"
-  inv_harness_skills "$HOME/.cursor/skills" cursor
-  inv_symlink harnesses/cursor/hooks.json "$HOME/.cursor/hooks.json"
-
-  # --- Devin ---
-  inv_section "devin"
-  inv_home "$HOME/.config"
-  inv_home "$HOME/.config/devin"
-  inv_symlink harnesses/devin/AGENTS.md "$HOME/.config/devin/AGENTS.md"
-  inv_harness_skills "$HOME/.config/devin/skills" devin
-
   # --- Grok ---
   inv_section "grok"
   inv_home "$HOME/.grok"
@@ -180,22 +158,9 @@ inventory_define() {
   inv_guard_dir "$HOME/.grok/hooks"
   inv_harness_skills "$HOME/.grok/skills" grok
 
-  # --- Pi ---
-  # settings は好みのみ。auth/trust/sessions/git cache は tracked にしない
-  # extensions は union（管理外の実ファイルは温存し、guard で可視化するだけ）
-  # /consult /finish は extensions/workflow.ts（slash 起動の SSOT。prompts は使わない）
-  inv_section "pi"
-  inv_home "$HOME/.pi"
-  inv_home "$HOME/.pi/agent"
-  inv_home "$HOME/.pi/agent/extensions"
-  inv_symlink agents/AGENTS.md "$HOME/.pi/agent/AGENTS.md"
-  inv_symlink harnesses/pi/settings.json "$HOME/.pi/agent/settings.json"
-  inv_collection "$HOME/.pi/agent/extensions" harnesses/pi/extensions
-  inv_guard_dir "$HOME/.pi/agent/extensions"
-  # pi は ~/.agents/skills をネイティブに読む（skills union なし）
-
   # --- Shell / editor / tools ---
   inv_section "shell / editor / tools"
+  inv_home "$HOME/.config"
   inv_home "$HOME/.config/mise"
   inv_symlink mise/config.toml "$HOME/.config/mise/config.toml"
   inv_home "$HOME/.config/fish"
