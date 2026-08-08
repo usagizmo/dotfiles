@@ -8,4 +8,3 @@ trusted_config_paths = ["~/.herdr/worktrees"]
 # lint / format は各 repo の package.json 側（この repo は bun + oxlint / oxfmt）
 bun = "1"
 node = "24"
-uv = "latest"
