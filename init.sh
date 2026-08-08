@@ -49,6 +49,9 @@ if [ -x "$(command -v mise)" ]; then
   mise trust -q "$DOTFILES_DIR/mise/config.toml"
   if [ -n "$(mise ls --missing --no-header 2>/dev/null)" ]; then
     install_step "mise でツールを" mise install
+    # install で shims が生えるので、この shell からも解決できるようにする
+    # （lib/links.sh の初回設定より後に生成されるケースがある）
+    [ -d "$HOME/.local/share/mise/shims" ] && PATH="$PATH:$HOME/.local/share/mise/shims"
   else
     echo "⏭️ mise のツールは既にインストールされています"
   fi
@@ -64,10 +67,6 @@ echo "## dev dependencies"
 # **mise の後に置く。**bun 自体を mise で入れるので、順序が逆だと初回に必ず落ちる
 if [ -x "$(command -v bun)" ]; then
   install_step "この repo の開発依存を" bun install --cwd "$DOTFILES_DIR" --frozen-lockfile
-elif [ -x "$(command -v mise)" ]; then
-  # **直前の mise install で入れた bun は、この shell の PATH にまだ居ない。**
-  # activate していない初回セットアップは必ずここへ来るので、mise 経由で解決する
-  install_step "この repo の開発依存を" mise exec -- bun install --cwd "$DOTFILES_DIR" --frozen-lockfile
 else
   echo "⚠️ bun が見つかりません。開発依存のインストールをスキップします"
 fi
