@@ -2,6 +2,12 @@
 # symlink 配線の共通 primitive（init / doctor から source する）
 # DOTFILES_DIR は呼び出し側で設定済みであること
 
+# **mise 管理ツールの解決規則をここに一本化する。**activate していないシェル（cron・
+# GUI クライアント・素の sh）から叩かれても解決できるよう shims を足す。init / up /
+# doctor でばらつくと「インストール済みなのに片方だけ失敗する」が起きる。
+# hook は lib を source しないので、.githooks/pre-commit が同じ 1 行を自前で持つ
+[ -d "$HOME/.local/share/mise/shims" ] && PATH="$PATH:$HOME/.local/share/mise/shims"
+
 # ---------- counters（apply / check 共通） ----------
 LINK_BLOCKED=${LINK_BLOCKED:-0}
 DOCTOR_OK=${DOCTOR_OK:-0}

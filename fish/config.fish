@@ -132,8 +132,6 @@ abbr -a ag agent
 abbr -a cl cline
 abbr -a co codex
 abbr -a oc opencode
-abbr -a de devin
-abbr -a dd devin-desktop
 abbr -a cur cursor
 abbr -a sm smerge
 abbr -a st subl
