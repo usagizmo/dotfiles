@@ -2,6 +2,12 @@
 # symlink 配線の共通 primitive（init / doctor から source する）
 # DOTFILES_DIR は呼び出し側で設定済みであること
 
+# **mise 管理ツールの解決規則をここに一本化する。**activate していないシェル（cron・
+# GUI クライアント・素の sh）から叩かれても解決できるよう shims を足す。init / up /
+# doctor でばらつくと「インストール済みなのに片方だけ失敗する」が起きる。
+# hook は lib を source しないので、.githooks/pre-commit が同じ 1 行を自前で持つ
+[ -d "$HOME/.local/share/mise/shims" ] && PATH="$PATH:$HOME/.local/share/mise/shims"
+
 # ---------- counters（apply / check 共通） ----------
 LINK_BLOCKED=${LINK_BLOCKED:-0}
 DOCTOR_OK=${DOCTOR_OK:-0}
@@ -497,7 +503,7 @@ check_home_dir() {
 # commit gate（.githooks/pre-commit）の配線を検査する。
 # 道具が無いと hook は commit を止めるだけになるので、道具の有無もここで見る。修復は ./init.sh
 check_commit_gate() {
-  local current tool
+  local current
   # 未設定なら git config は exit 1（doctor.sh は set -e なので握る）
   current="$(git -C "$DOTFILES_DIR" config --get core.hooksPath || true)"
   if [ "$current" != ".githooks" ]; then
@@ -507,14 +513,19 @@ check_commit_gate() {
   else
     doctor_pass "core.hooksPath=.githooks（pre-commit は実行可能）"
   fi
-  # hook と同じ解決順で見る（hook は mise activate が無い環境向けに shims も足す）
-  for tool in oxfmt oxlint; do
-    if command -v "$tool" >/dev/null 2>&1 || [ -x "$HOME/.local/share/mise/shims/$tool" ]; then
-      doctor_pass "$tool を hook から解決できます"
-    else
-      doctor_fail "$tool が見つかりません（この状態では commit が止まります）"
-    fi
-  done
+  # hook と同じ解決順で見る（hook は mise activate が無い環境向けに shims も足す）。
+  # oxfmt / oxlint は node_modules 側なので、見るのは bun と依存の有無
+  if command -v bun >/dev/null 2>&1 || [ -x "$HOME/.local/share/mise/shims/bun" ]; then
+    doctor_pass "bun を hook から解決できます"
+  else
+    doctor_fail "bun が見つかりません（この状態では commit が止まります）"
+  fi
+  # hook は bun run で repo-local の実体を呼ぶ（bunx だと registry から引いて通ってしまう）
+  if [ -x "$DOTFILES_DIR/node_modules/.bin/lint-staged" ]; then
+    doctor_pass "開発依存が入っています"
+  else
+    doctor_fail "開発依存が入っていません（この状態では commit が止まります）"
+  fi
   return 0
 }
 

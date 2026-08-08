@@ -76,6 +76,26 @@ fi
 
 
 echo ""
+echo "## dev dependencies"
+
+# package.json の範囲（^）内で上げ、bun.lock を書き換える。差分が出たら commit が要る。
+# **mise tools の後に置く。**bun 自体が直前の mise upgrade で上がる
+if [ -x "$(command -v bun)" ]; then
+  echo "📦 この repo の開発依存を更新しています..."
+  if (cd "$DOTFILES_DIR" && bun update); then
+    echo "✅ 開発依存を更新しました"
+  else
+    echo "⚠️ 開発依存の更新に失敗しました"
+    UPDATE_FAILED=1
+  fi
+else
+  # commit gate が使う道具なので、欠落は失敗扱い（対象が無いのではなく道具が無い）
+  echo "⚠️ bun が見つかりません。開発依存の更新をスキップします"
+  UPDATE_FAILED=1
+fi
+
+
+echo ""
 echo "## yazi"
 
 if [ -x "$(command -v ya)" ]; then
