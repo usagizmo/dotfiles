@@ -64,6 +64,10 @@ echo "## dev dependencies"
 # **mise の後に置く。**bun 自体を mise で入れるので、順序が逆だと初回に必ず落ちる
 if [ -x "$(command -v bun)" ]; then
   install_step "この repo の開発依存を" bun install --cwd "$DOTFILES_DIR" --frozen-lockfile
+elif [ -x "$(command -v mise)" ]; then
+  # **直前の mise install で入れた bun は、この shell の PATH にまだ居ない。**
+  # activate していない初回セットアップは必ずここへ来るので、mise 経由で解決する
+  install_step "この repo の開発依存を" mise exec -- bun install --cwd "$DOTFILES_DIR" --frozen-lockfile
 else
   echo "⚠️ bun が見つかりません。開発依存のインストールをスキップします"
 fi

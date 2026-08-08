@@ -514,7 +514,8 @@ check_commit_gate() {
   else
     doctor_fail "bun が見つかりません（この状態では commit が止まります）"
   fi
-  if [ -d "$DOTFILES_DIR/node_modules" ]; then
+  # hook は repo-local の実体を直接呼ぶ（bunx だと registry から引いて通ってしまう）
+  if [ -x "$DOTFILES_DIR/node_modules/.bin/lint-staged" ]; then
     doctor_pass "開発依存が入っています"
   else
     doctor_fail "開発依存が入っていません（この状態では commit が止まります）"
