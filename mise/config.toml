@@ -3,8 +3,9 @@
 trusted_config_paths = ["~/.herdr/worktrees"]
 
 [tools]
+# **ここに置くのはランタイムだけにする。**linter / formatter を global に持つと、
+# 設定ファイルの無い repo でも既定値のまま完走して別の規則で書き換えてしまう。
+# lint / format は各 repo の package.json 側（この repo は bun + oxlint / oxfmt）
+bun = "1"
 node = "24"
-# JS/TS 系の lint / format。commit gate（.githooks/pre-commit）とエディタの両方がこれを使う
-oxfmt = "latest"
-oxlint = "latest"
 uv = "latest"

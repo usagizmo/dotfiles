@@ -58,6 +58,18 @@ fi
 
 
 echo ""
+echo "## dev dependencies"
+
+# commit gate（lint-staged → oxfmt / oxlint）と docs の強調記法検査が使う。
+# **mise の後に置く。**bun 自体を mise で入れるので、順序が逆だと初回に必ず落ちる
+if [ -x "$(command -v bun)" ]; then
+  install_step "この repo の開発依存を" bun install --cwd "$DOTFILES_DIR" --frozen-lockfile
+else
+  echo "⚠️ bun が見つかりません。開発依存のインストールをスキップします"
+fi
+
+
+echo ""
 echo "## brew packages"
 
 # shell 設定が前提とする CLI（fish/zsh の alias・keybind・関数から参照）。形式: <brew パッケージ名>:<コマンド名>
