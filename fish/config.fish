@@ -73,7 +73,6 @@ fish_add_path "$HOME/.lmstudio/bin"
 fish_add_path "$HOME/.opencode/bin"
 fish_add_path "$HOME/.codeium/windsurf/bin"
 fish_add_path "$HOME/.grok/bin"
-fish_add_path "$HOME/.hermes/node/bin" # Pi
 
 
 # --------------------
