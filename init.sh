@@ -49,11 +49,26 @@ if [ -x "$(command -v mise)" ]; then
   mise trust -q "$DOTFILES_DIR/mise/config.toml"
   if [ -n "$(mise ls --missing --no-header 2>/dev/null)" ]; then
     install_step "mise でツールを" mise install
+    # install で shims が生えるので、この shell からも解決できるようにする
+    # （lib/links.sh の初回設定より後に生成されるケースがある）
+    [ -d "$HOME/.local/share/mise/shims" ] && PATH="$PATH:$HOME/.local/share/mise/shims"
   else
     echo "⏭️ mise のツールは既にインストールされています"
   fi
 else
   echo "⚠️ mise がインストールされていません。brew install mise を実行してください"
+fi
+
+
+echo ""
+echo "## dev dependencies"
+
+# commit gate（lint-staged → oxfmt / oxlint）と docs の強調記法検査が使う。
+# **mise の後に置く。**bun 自体を mise で入れるので、順序が逆だと初回に必ず落ちる
+if [ -x "$(command -v bun)" ]; then
+  install_step "この repo の開発依存を" bun install --cwd "$DOTFILES_DIR" --frozen-lockfile
+else
+  echo "⚠️ bun が見つかりません。開発依存のインストールをスキップします"
 fi
 
 

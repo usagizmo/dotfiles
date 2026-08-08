@@ -73,7 +73,6 @@ fish_add_path "$HOME/.lmstudio/bin"
 fish_add_path "$HOME/.opencode/bin"
 fish_add_path "$HOME/.codeium/windsurf/bin"
 fish_add_path "$HOME/.grok/bin"
-fish_add_path "$HOME/.hermes/node/bin" # Pi
 
 
 # --------------------
@@ -132,8 +131,6 @@ abbr -a ag agent
 abbr -a cl cline
 abbr -a co codex
 abbr -a oc opencode
-abbr -a de devin
-abbr -a dd devin-desktop
 abbr -a cur cursor
 abbr -a sm smerge
 abbr -a st subl
