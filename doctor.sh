@@ -4,11 +4,11 @@
 
 set -euo pipefail
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/links.sh
-. "$DOTFILES_DIR/lib/links.sh"
+. "$REPO_DIR/lib/links.sh"
 # shellcheck source=lib/inventory.sh
-. "$DOTFILES_DIR/lib/inventory.sh"
+. "$REPO_DIR/lib/inventory.sh"
 
 usage() {
   cat <<'EOF'
@@ -40,16 +40,12 @@ for arg in "$@"; do
 done
 
 echo "🩺 dotfiles doctor"
-echo "   repo: $DOTFILES_DIR"
+echo "   repo: $REPO_DIR"
 echo "   inventory: lib/inventory.sh"
 
 echo ""
 echo "## inventory"
 run_inventory check
-
-echo ""
-echo "## commit gate"
-check_commit_gate
 
 echo ""
 echo "## 移植性"

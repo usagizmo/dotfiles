@@ -1,6 +1,8 @@
 # shellcheck shell=bash
-# symlink 配線の共通 primitive（init / doctor から source する）
-# DOTFILES_DIR は呼び出し側で設定済みであること
+# symlink 配線の共通 primitive と inventory API（各 repo の init / up / doctor から source する）
+# REPO_DIR は呼び出し側が自分の repo ルートに設定する。
+# **dotfiles 専用ではない。**agentfiles など別 repo も自分の REPO_DIR を渡して同じ実装を使う
+# （管理下判定・付け替え・prune がすべて REPO_DIR 基準なので、repo ごとに閉じる）
 
 # **mise 管理ツールの解決規則をここに一本化する。**activate していないシェル（cron・
 # GUI クライアント・素の sh）から叩かれても解決できるよう shims を足す。init / up /
@@ -86,7 +88,7 @@ link_path() {
     if [ "$current" = "$src" ]; then
       echo "⏭️ $dst のシンボリックリンクは既に存在します"
       return 0
-    elif [ "${current#"$DOTFILES_DIR"/}" != "$current" ]; then
+    elif [ "${current#"$REPO_DIR"/}" != "$current" ]; then
       try_symlink "$src" "$dst" force
       return $?
     else
@@ -115,7 +117,7 @@ link_path() {
 }
 
 link_from_repo() {
-  link_path "$DOTFILES_DIR/$1" "$2"
+  link_path "$REPO_DIR/$1" "$2"
 }
 
 # コレクション項目: 既存 symlink は常に付け替え可。実体は触らず警告
@@ -142,16 +144,16 @@ link_collection_entry() {
   try_symlink "$src" "$dst" new
 }
 
-is_dotfiles_managed_link() {
+is_repo_managed_link() {
   local link=$1 current resolved
   [ -L "$link" ] || return 1
   current="$(readlink "$link")"
   case "$current" in
-    "$DOTFILES_DIR"/*) return 0 ;;
+    "$REPO_DIR"/*) return 0 ;;
   esac
   resolved="$(realpath "$link" 2>/dev/null)" || return 1
   case "$resolved" in
-    "$DOTFILES_DIR"/*) return 0 ;;
+    "$REPO_DIR"/*) return 0 ;;
   esac
   return 1
 }
@@ -201,14 +203,14 @@ link_collection_union() {
     name="$(basename "$link")"
     if [ ! -e "$link" ]; then
       case "$(readlink "$link")" in
-        "$DOTFILES_DIR"/*)
+        "$REPO_DIR"/*)
           rm "$link"
           echo "🗑️ 壊れたシンボリックリンクを削除しました: $link"
           ;;
       esac
       continue
     fi
-    is_dotfiles_managed_link "$link" || continue
+    is_repo_managed_link "$link" || continue
     case "$desired" in
       *" $name "*) ;;
       *)
@@ -224,8 +226,8 @@ link_collection_union() {
 link_harness_skills() {
   local dst=$1 harness=$2
   link_collection_union "$dst" \
-    "$DOTFILES_DIR/agents/skills" \
-    "$DOTFILES_DIR/harnesses/$harness/skills"
+    "$REPO_DIR/agents/skills" \
+    "$REPO_DIR/harnesses/$harness/skills"
 }
 
 copy_if_missing() {
@@ -370,12 +372,12 @@ check_collection_union() {
         current="$(readlink "$dst/$ex")"
         managed=0
         case "$current" in
-          "$DOTFILES_DIR"/*) managed=1 ;;
+          "$REPO_DIR"/*) managed=1 ;;
         esac
         if [ "$managed" -eq 0 ] && { [ -e "$dst/$ex" ] || [ -d "$dst/$ex" ]; }; then
           resolved="$(realpath "$dst/$ex" 2>/dev/null || true)"
           case "$resolved" in
-            "$DOTFILES_DIR"/*) managed=1 ;;
+            "$REPO_DIR"/*) managed=1 ;;
           esac
         fi
         if [ "$managed" -eq 1 ]; then
@@ -400,7 +402,7 @@ check_collection_union() {
     current="$(readlink "$entry")"
     if [ ! -e "$entry" ] && [ ! -d "$entry" ]; then
       case "$current" in
-        "$DOTFILES_DIR"/*)
+        "$REPO_DIR"/*)
           doctor_fail "$entry は壊れた管理下 symlink です: $current"
           ;;
         *)
@@ -412,12 +414,12 @@ check_collection_union() {
 
     managed=0
     case "$current" in
-      "$DOTFILES_DIR"/*) managed=1 ;;
+      "$REPO_DIR"/*) managed=1 ;;
     esac
     if [ "$managed" -eq 0 ]; then
       resolved="$(realpath "$entry" 2>/dev/null || true)"
       case "$resolved" in
-        "$DOTFILES_DIR"/*) managed=1 ;;
+        "$REPO_DIR"/*) managed=1 ;;
       esac
     fi
     if [ "$managed" -eq 1 ]; then
@@ -434,8 +436,8 @@ check_collection_union() {
 check_harness_skills() {
   local dst=$1 harness=$2
   check_collection_union "$dst" \
-    "$DOTFILES_DIR/agents/skills" \
-    "$DOTFILES_DIR/harnesses/$harness/skills"
+    "$REPO_DIR/agents/skills" \
+    "$REPO_DIR/harnesses/$harness/skills"
 }
 
 # check_seed_file <template> <dst>
@@ -477,7 +479,7 @@ check_guard_dir() {
     [ -e "$entry" ] || [ -L "$entry" ] || continue
     name="$(basename "$entry")"
     _is_excluded "$name" "$allow_csv" && continue
-    is_dotfiles_managed_link "$entry" && continue
+    is_repo_managed_link "$entry" && continue
     doctor_warn "$dst に想定外のエントリがあります: ${name}（外部ツールが書き込んだ可能性）"
     unexpected=$((unexpected + 1))
   done
@@ -505,11 +507,11 @@ check_home_dir() {
 check_commit_gate() {
   local current
   # 未設定なら git config は exit 1（doctor.sh は set -e なので握る）
-  current="$(git -C "$DOTFILES_DIR" config --get core.hooksPath || true)"
+  current="$(git -C "$REPO_DIR" config --get core.hooksPath || true)"
   if [ "$current" != ".githooks" ]; then
     doctor_fail "core.hooksPath が .githooks ではありません: ${current:-未設定}"
-  elif [ ! -x "$DOTFILES_DIR/.githooks/pre-commit" ]; then
-    doctor_fail "$DOTFILES_DIR/.githooks/pre-commit が実行可能ではありません"
+  elif [ ! -x "$REPO_DIR/.githooks/pre-commit" ]; then
+    doctor_fail "$REPO_DIR/.githooks/pre-commit が実行可能ではありません"
   else
     doctor_pass "core.hooksPath=.githooks（pre-commit は実行可能）"
   fi
@@ -521,7 +523,7 @@ check_commit_gate() {
     doctor_fail "bun が見つかりません（この状態では commit が止まります）"
   fi
   # hook は bun run で repo-local の実体を呼ぶ（bunx だと registry から引いて通ってしまう）
-  if [ -x "$DOTFILES_DIR/node_modules/.bin/lint-staged" ]; then
+  if [ -x "$REPO_DIR/node_modules/.bin/lint-staged" ]; then
     doctor_pass "開発依存が入っています"
   else
     doctor_fail "開発依存が入っていません（この状態では commit が止まります）"
@@ -539,9 +541,136 @@ check_absolute_home_paths() {
     doctor_warn "絶対 home パスが tracked ファイルにあります: ${hit}（\$HOME か ~ に置き換える）"
     found=$((found + 1))
   # [U] / [h] は自己マッチ回避。この行自体が検出対象にならないようにする
-  done < <(git -C "$DOTFILES_DIR" grep -nE "(/[U]sers/|/[h]ome/)[^/[:space:]\"']+/" -- . 2>/dev/null || true)
+  done < <(git -C "$REPO_DIR" grep -nE "(/[U]sers/|/[h]ome/)[^/[:space:]\"']+/" -- . 2>/dev/null || true)
   if [ "$found" -eq 0 ]; then
     doctor_pass "tracked ファイルに絶対 home パスなし（別環境で init.sh 可能）"
   fi
   return 0
+}
+
+# 行の意味:
+#   inv_home <dir>                         harness home 等の実ディレクトリ
+#   inv_symlink <repo_rel> <dst>           symlink（実ファイルは repo へ取り込んでから symlink 化）
+#   inv_harness_skills <dst> <harness>     agents + harnesses/<agent>（後勝ち）
+#   inv_collection <dst> [--exclude a,b] <repo_rel_src>...
+#   inv_seed <repo_rel> <dst>              初回 copy（check は存在確認のみ）
+#   inv_symlink_if_host <host_dir> <repo_rel> <dst>  host があるときだけ
+#   inv_guard_dir <dst> [allow_csv]        doctor 専用。想定外エントリを warn
+
+# ---------- inventory 操作（apply / check） ----------
+
+inv_home() {
+  local dir=$1
+  case "$REPO_OP" in
+    apply) ensure_dir "$dir" ;;
+    check) check_home_dir "$dir" ;;
+  esac
+}
+
+inv_symlink() {
+  local rel=$1 dst=$2
+  case "$REPO_OP" in
+    apply) link_from_repo "$rel" "$dst" ;;
+    check) check_symlink "$dst" "$REPO_DIR/$rel" ;;
+  esac
+}
+
+inv_harness_skills() {
+  local dst=$1 harness=$2
+  case "$REPO_OP" in
+    apply) link_harness_skills "$dst" "$harness" ;;
+    check) check_harness_skills "$dst" "$harness" ;;
+  esac
+}
+
+# inv_collection <dst> [--exclude a,b] <repo_rel>...
+# パスは空白区切り文字列にせず配列で渡す（スペース入り REPO_DIR でも壊さない）
+# set -u 下の空配列展開は ${arr[@]+"${arr[@]}"} で回避
+inv_collection() {
+  local dst=$1
+  shift
+  local has_exclude=0 exclude_csv="" rel
+  local -a abs_srcs=()
+
+  if [ "${1:-}" = "--exclude" ]; then
+    has_exclude=1
+    exclude_csv="${2:-}"
+    shift 2
+  fi
+  for rel in "$@"; do
+    abs_srcs+=("$REPO_DIR/$rel")
+  done
+
+  case "$REPO_OP" in
+    apply)
+      if [ "$has_exclude" -eq 1 ]; then
+        link_collection_union "$dst" --exclude "$exclude_csv" ${abs_srcs[@]+"${abs_srcs[@]}"}
+      else
+        link_collection_union "$dst" ${abs_srcs[@]+"${abs_srcs[@]}"}
+      fi
+      ;;
+    check)
+      if [ "$has_exclude" -eq 1 ]; then
+        check_collection_union "$dst" --exclude "$exclude_csv" ${abs_srcs[@]+"${abs_srcs[@]}"}
+      else
+        check_collection_union "$dst" ${abs_srcs[@]+"${abs_srcs[@]}"}
+      fi
+      ;;
+  esac
+}
+
+inv_seed() {
+  local rel=$1 dst=$2
+  case "$REPO_OP" in
+    apply)
+      ensure_dir "$(dirname "$dst")"
+      if copy_if_missing "$REPO_DIR/$rel" "$dst"; then
+        echo "📝 $dst を編集して環境変数を設定してください"
+      fi
+      ;;
+    check) check_seed_file "$REPO_DIR/$rel" "$dst" ;;
+  esac
+}
+
+inv_symlink_if_host() {
+  local host_dir=$1 rel=$2 dst=$3
+  if [ -d "$host_dir" ]; then
+    inv_symlink "$rel" "$dst"
+  else
+    case "$REPO_OP" in
+      apply) echo "⚠️ $host_dir が無いためスキップ: $dst" ;;
+      check) doctor_warn "$host_dir が無いためスキップ: $dst" ;;
+    esac
+  fi
+}
+
+# hooks 等の tripwire dir。apply は何もしない（検知専用。勝手に消さない）
+inv_guard_dir() {
+  local dst=$1 allow_csv=${2:-}
+  case "$REPO_OP" in
+    check) check_guard_dir "$dst" "$allow_csv" ;;
+  esac
+}
+
+inv_section() {
+  # apply / check とも同じ見出し形式（doctor と揃える）
+  echo ""
+  echo "## $1"
+}
+
+run_inventory() {
+  local op=$1
+  case "$op" in
+    apply|check) ;;
+    *)
+      echo "run_inventory: unknown op: $op (apply|check)" >&2
+      return 2
+      ;;
+  esac
+  if [ -z "${REPO_DIR:-}" ]; then
+    echo "run_inventory: REPO_DIR is not set" >&2
+    return 2
+  fi
+  REPO_OP=$op
+  inventory_define
 }

@@ -1,10 +1,10 @@
 #!/bin/bash
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/links.sh
-. "$DOTFILES_DIR/lib/links.sh"
+. "$REPO_DIR/lib/links.sh"
 # shellcheck source=lib/inventory.sh
-. "$DOTFILES_DIR/lib/inventory.sh"
+. "$REPO_DIR/lib/inventory.sh"
 
 INSTALL_FAILED=0
 
@@ -27,26 +27,10 @@ run_inventory apply
 
 
 echo ""
-echo "## commit gate"
-
-# .githooks/pre-commit（staged なファイルに oxfmt / oxlint をかける）を有効にする。
-# 相対パスにするのは worktree でも各 worktree 直下の .githooks を指させるため
-HOOKS_PATH="$(git -C "$DOTFILES_DIR" config --get core.hooksPath || true)"
-if [ "$HOOKS_PATH" = ".githooks" ]; then
-  echo "⏭️ core.hooksPath は既に .githooks です"
-elif git -C "$DOTFILES_DIR" config core.hooksPath .githooks; then
-  echo "✅ core.hooksPath を .githooks に設定しました"
-else
-  echo "⚠️ core.hooksPath を設定できませんでした"
-  INSTALL_FAILED=$((INSTALL_FAILED + 1))
-fi
-
-
-echo ""
 echo "## mise"
 
 if [ -x "$(command -v mise)" ]; then
-  mise trust -q "$DOTFILES_DIR/mise/config.toml"
+  mise trust -q "$REPO_DIR/mise/config.toml"
   if [ -n "$(mise ls --missing --no-header 2>/dev/null)" ]; then
     install_step "mise でツールを" mise install
     # install で shims が生えるので、この shell からも解決できるようにする
@@ -57,18 +41,6 @@ if [ -x "$(command -v mise)" ]; then
   fi
 else
   echo "⚠️ mise がインストールされていません。brew install mise を実行してください"
-fi
-
-
-echo ""
-echo "## dev dependencies"
-
-# commit gate（lint-staged → oxfmt / oxlint）と docs の強調記法検査が使う。
-# **mise の後に置く。**bun 自体を mise で入れるので、順序が逆だと初回に必ず落ちる
-if [ -x "$(command -v bun)" ]; then
-  install_step "この repo の開発依存を" bun install --cwd "$DOTFILES_DIR" --frozen-lockfile
-else
-  echo "⚠️ bun が見つかりません。開発依存のインストールをスキップします"
 fi
 
 

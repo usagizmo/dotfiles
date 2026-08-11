@@ -1,163 +1,19 @@
 # shellcheck shell=bash
-# 配線 inventory の SSOT。
-# 追加・変更は原則ここだけ。init.sh / doctor.sh は run_inventory を呼ぶ。
+# **この repo が何を配線するかの SSOT。**追加・変更は原則ここだけ。
+# inv_* の実装と run_inventory は lib/links.sh（repo をまたいで共有する API）。
 #
 # 使い方:
-#   DOTFILES_DIR=... source lib/links.sh && source lib/inventory.sh
+#   REPO_DIR=... source lib/links.sh && source lib/inventory.sh
 #   run_inventory apply   # 配線を適用
 #   run_inventory check   # 健全性検査
-#
-# 行の意味:
-#   inv_home <dir>                         harness home 等の実ディレクトリ
-#   inv_symlink <repo_rel> <dst>           symlink（実ファイルは repo へ取り込んでから symlink 化）
-#   inv_harness_skills <dst> <harness>     agents + harnesses/<agent>（後勝ち）
-#   inv_collection <dst> [--exclude a,b] <repo_rel_src>...
-#   inv_seed <repo_rel> <dst>              初回 copy（check は存在確認のみ）
-#   inv_symlink_if_host <host_dir> <repo_rel> <dst>  host があるときだけ
-#   inv_guard_dir <dst> [allow_csv]        doctor 専用。想定外エントリを warn
-
-# ---------- inventory 操作（apply / check） ----------
-
-inv_home() {
-  local dir=$1
-  case "$DOTFILES_OP" in
-    apply) ensure_dir "$dir" ;;
-    check) check_home_dir "$dir" ;;
-  esac
-}
-
-inv_symlink() {
-  local rel=$1 dst=$2
-  case "$DOTFILES_OP" in
-    apply) link_from_repo "$rel" "$dst" ;;
-    check) check_symlink "$dst" "$DOTFILES_DIR/$rel" ;;
-  esac
-}
-
-inv_harness_skills() {
-  local dst=$1 harness=$2
-  case "$DOTFILES_OP" in
-    apply) link_harness_skills "$dst" "$harness" ;;
-    check) check_harness_skills "$dst" "$harness" ;;
-  esac
-}
-
-# inv_collection <dst> [--exclude a,b] <repo_rel>...
-# パスは空白区切り文字列にせず配列で渡す（スペース入り DOTFILES_DIR でも壊さない）
-# set -u 下の空配列展開は ${arr[@]+"${arr[@]}"} で回避
-inv_collection() {
-  local dst=$1
-  shift
-  local has_exclude=0 exclude_csv="" rel
-  local -a abs_srcs=()
-
-  if [ "${1:-}" = "--exclude" ]; then
-    has_exclude=1
-    exclude_csv="${2:-}"
-    shift 2
-  fi
-  for rel in "$@"; do
-    abs_srcs+=("$DOTFILES_DIR/$rel")
-  done
-
-  case "$DOTFILES_OP" in
-    apply)
-      if [ "$has_exclude" -eq 1 ]; then
-        link_collection_union "$dst" --exclude "$exclude_csv" ${abs_srcs[@]+"${abs_srcs[@]}"}
-      else
-        link_collection_union "$dst" ${abs_srcs[@]+"${abs_srcs[@]}"}
-      fi
-      ;;
-    check)
-      if [ "$has_exclude" -eq 1 ]; then
-        check_collection_union "$dst" --exclude "$exclude_csv" ${abs_srcs[@]+"${abs_srcs[@]}"}
-      else
-        check_collection_union "$dst" ${abs_srcs[@]+"${abs_srcs[@]}"}
-      fi
-      ;;
-  esac
-}
-
-inv_seed() {
-  local rel=$1 dst=$2
-  case "$DOTFILES_OP" in
-    apply)
-      ensure_dir "$(dirname "$dst")"
-      if copy_if_missing "$DOTFILES_DIR/$rel" "$dst"; then
-        echo "📝 $dst を編集して環境変数を設定してください"
-      fi
-      ;;
-    check) check_seed_file "$DOTFILES_DIR/$rel" "$dst" ;;
-  esac
-}
-
-inv_symlink_if_host() {
-  local host_dir=$1 rel=$2 dst=$3
-  if [ -d "$host_dir" ]; then
-    inv_symlink "$rel" "$dst"
-  else
-    case "$DOTFILES_OP" in
-      apply) echo "⚠️ $host_dir が無いためスキップ: $dst" ;;
-      check) doctor_warn "$host_dir が無いためスキップ: $dst" ;;
-    esac
-  fi
-}
-
-# hooks 等の tripwire dir。apply は何もしない（検知専用。勝手に消さない）
-inv_guard_dir() {
-  local dst=$1 allow_csv=${2:-}
-  case "$DOTFILES_OP" in
-    check) check_guard_dir "$dst" "$allow_csv" ;;
-  esac
-}
-
-inv_section() {
-  # apply / check とも同じ見出し形式（doctor と揃える）
-  echo ""
-  echo "## $1"
-}
 
 # ---------- SSOT: 配線一覧 ----------
-# harness / ツールを足すときは、ここに 1 ブロック足すだけで init と doctor に反映される。
+# ツールを足すときは、ここに 1 ブロック足すだけで init と doctor に反映される。
 #
-# harnesses/<agent>/hooks.json（中身は `{"hooks": {}}`）は空 overlay ではなく tripwire。
-# 空であること自体が基準線。中身を埋めたり配線を外したりしない（規約は AGENTS.md）。
+# **agent 設定（`~/.agents` / `~/.claude` / `~/.codex` / `~/.grok`）はここに無い。**
+# agentfiles（兄弟 repo）が自分の lib/inventory.sh で張る。
 
 inventory_define() {
-  # --- Agents 共通 SSOT 投影 ---
-  inv_section "agents (SSOT projection)"
-  inv_home "$HOME/.agents"
-  inv_symlink agents/AGENTS.md "$HOME/.agents/AGENTS.md"
-  inv_symlink agents/skills "$HOME/.agents/skills"
-  inv_symlink agents/.skill-lock.json "$HOME/.agents/.skill-lock.json"
-
-  # --- Claude ---
-  inv_section "claude"
-  inv_home "$HOME/.claude"
-  inv_symlink agents/AGENTS.md "$HOME/.claude/CLAUDE.md"
-  inv_harness_skills "$HOME/.claude/skills" claude
-  inv_symlink harnesses/claude/settings.json "$HOME/.claude/settings.json"
-  inv_symlink harnesses/claude/statusline.py "$HOME/.claude/statusline.py"
-  inv_home "$HOME/.claude/hooks"
-  inv_symlink harnesses/claude/hooks/herdr-agent-state.sh \
-    "$HOME/.claude/hooks/herdr-agent-state.sh"
-  inv_guard_dir "$HOME/.claude/hooks"
-
-  # --- Codex ---
-  # Codex は ~/.agents/skills をネイティブに読む。union は harness 固有 overlay のみ
-  inv_section "codex"
-  inv_home "$HOME/.codex"
-  inv_symlink agents/AGENTS.md "$HOME/.codex/AGENTS.md"
-  inv_collection "$HOME/.codex/skills" harnesses/codex/skills
-  inv_symlink harnesses/codex/hooks.json "$HOME/.codex/hooks.json"
-
-  # --- Grok ---
-  inv_section "grok"
-  inv_home "$HOME/.grok"
-  inv_symlink harnesses/grok/hooks/hooks.json "$HOME/.grok/hooks/hooks.json"
-  inv_guard_dir "$HOME/.grok/hooks"
-  inv_harness_skills "$HOME/.grok/skills" grok
-
   # --- Shell / editor / tools ---
   inv_section "shell / editor / tools"
   inv_home "$HOME/.config"
@@ -192,21 +48,4 @@ inventory_define() {
     "$HOME/Library/Application Support/Cursor/User" \
     cursor-app/keybindings.json \
     "$HOME/Library/Application Support/Cursor/User/keybindings.json"
-}
-
-run_inventory() {
-  local op=$1
-  case "$op" in
-    apply|check) ;;
-    *)
-      echo "run_inventory: unknown op: $op (apply|check)" >&2
-      return 2
-      ;;
-  esac
-  if [ -z "${DOTFILES_DIR:-}" ]; then
-    echo "run_inventory: DOTFILES_DIR is not set" >&2
-    return 2
-  fi
-  DOTFILES_OP=$op
-  inventory_define
 }
