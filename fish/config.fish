@@ -132,6 +132,7 @@ abbr -a cl cline
 abbr -a co codex
 abbr -a oc opencode
 abbr -a cur cursor
+abbr -a ca cursor-agent
 abbr -a sm smerge
 abbr -a st subl
 abbr -a ol ollama
