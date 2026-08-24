@@ -16,6 +16,87 @@ DOCTOR_OK=${DOCTOR_OK:-0}
 DOCTOR_FAIL=${DOCTOR_FAIL:-0}
 DOCTOR_WARN=${DOCTOR_WARN:-0}
 DOCTOR_QUIET=${DOCTOR_QUIET:-0}
+SWEEP_REMOVED=${SWEEP_REMOVED:-0}
+INV_KEEP_DESTS=()
+INV_SCAN_ROOTS=()
+INV_HOMES=()
+INV_SWEEP_ROOTS=()
+COLLECTION_NAMES=()
+
+_inv_keep_add() {
+  local dest=$1 item
+  for item in "${INV_KEEP_DESTS[@]+"${INV_KEEP_DESTS[@]}"}"; do
+    [ "$item" = "$dest" ] && return 0
+  done
+  INV_KEEP_DESTS+=("$dest")
+}
+
+_inv_scan_add() {
+  local root=$1 item
+  [ -n "$root" ] || return 0
+  for item in "${INV_SCAN_ROOTS[@]+"${INV_SCAN_ROOTS[@]}"}"; do
+    [ "$item" = "$root" ] && return 0
+  done
+  INV_SCAN_ROOTS+=("$root")
+}
+
+_inv_home_add() {
+  local dir=$1 item
+  for item in "${INV_HOMES[@]+"${INV_HOMES[@]}"}"; do
+    [ "$item" = "$dir" ] && return 0
+  done
+  INV_HOMES+=("$dir")
+  _inv_scan_add "$dir"
+}
+
+_inv_sweep_root_add() {
+  local root=$1 item
+  [ -n "$root" ] || return 0
+  for item in "${INV_SWEEP_ROOTS[@]+"${INV_SWEEP_ROOTS[@]}"}"; do
+    [ "$item" = "$root" ] && return 0
+  done
+  INV_SWEEP_ROOTS+=("$root")
+}
+
+# source の隠し名は配らない。keep-set は配列の完全一致（空白区切りにしない）
+_collection_fill_names() {
+  local exclude_csv=$1
+  shift
+  COLLECTION_NAMES=()
+  local src_dir entry name item dup
+  for src_dir in "$@"; do
+    [ -d "$src_dir" ] || continue
+    for entry in "$src_dir"/*; do
+      [ -e "$entry" ] || [ -L "$entry" ] || continue
+      name="$(basename "$entry")"
+      case "$name" in
+        .*) continue ;;
+      esac
+      _is_excluded "$name" "$exclude_csv" && continue
+      dup=0
+      for item in "${COLLECTION_NAMES[@]+"${COLLECTION_NAMES[@]}"}"; do
+        if [ "$item" = "$name" ]; then
+          dup=1
+          break
+        fi
+      done
+      [ "$dup" -eq 0 ] && COLLECTION_NAMES+=("$name")
+    done
+  done
+}
+
+# 同名は後の source が勝つ。COLLECTION_SRC に絶対 path を書く
+_collection_last_src() {
+  local name=$1 src_dir
+  shift
+  COLLECTION_SRC=""
+  for src_dir in "$@"; do
+    [ -d "$src_dir" ] || continue
+    if [ -e "$src_dir/$name" ] || [ -L "$src_dir/$name" ]; then
+      COLLECTION_SRC="$src_dir/$name"
+    fi
+  done
+}
 
 ensure_dir() {
   if [ ! -d "$1" ]; then
@@ -162,10 +243,10 @@ is_repo_managed_link() {
 link_collection_union() {
   local dst=$1
   shift
-  local exclude_csv="" src_dir entry name link desired="" has_src=0
+  local exclude_csv="" src_dir name has_src=0
 
   if [ "${1:-}" = "--exclude" ]; then
-    exclude_csv=",${2:-},"
+    exclude_csv="${2:-}"
     shift 2
   fi
 
@@ -180,54 +261,12 @@ link_collection_union() {
   fi
   ensure_dir "$dst"
 
-  for src_dir in "$@"; do
-    [ -d "$src_dir" ] || continue
-    for entry in "$src_dir"/*; do
-      [ -e "$entry" ] || [ -L "$entry" ] || continue
-      name="$(basename "$entry")"
-      case "$name" in
-        .*) continue ;;
-      esac
-      if [ -n "$exclude_csv" ]; then
-        case "$exclude_csv" in
-          *",$name,"*) continue ;;
-        esac
-      fi
-      link_collection_entry "$entry" "$dst/$name"
-      desired="$desired $name "
-    done
+  _collection_fill_names "$exclude_csv" "$@"
+  for name in "${COLLECTION_NAMES[@]+"${COLLECTION_NAMES[@]}"}"; do
+    _collection_last_src "$name" "$@"
+    [ -n "$COLLECTION_SRC" ] || continue
+    link_collection_entry "$COLLECTION_SRC" "$dst/$name"
   done
-
-  for link in "$dst"/*; do
-    [ -L "$link" ] || continue
-    name="$(basename "$link")"
-    if [ ! -e "$link" ]; then
-      case "$(readlink "$link")" in
-        "$REPO_DIR"/*)
-          rm "$link"
-          echo "🗑️ 壊れたシンボリックリンクを削除しました: $link"
-          ;;
-      esac
-      continue
-    fi
-    is_repo_managed_link "$link" || continue
-    case "$desired" in
-      *" $name "*) ;;
-      *)
-        rm "$link"
-        echo "🗑️ 配布対象外のシンボリックリンクを削除しました: $link"
-        ;;
-    esac
-  done
-}
-
-# link_harness_skills <dst> <harness>
-# source 優先度: agents/skills < harnesses/<agent>/skills
-link_harness_skills() {
-  local dst=$1 harness=$2
-  link_collection_union "$dst" \
-    "$REPO_DIR/agents/skills" \
-    "$REPO_DIR/harnesses/$harness/skills"
 }
 
 copy_if_missing() {
@@ -307,10 +346,11 @@ _is_excluded() {
 
 # check_collection_union <dst> [--exclude a,b] <src_dir>...
 # src_dir は "$@" のまま扱い、空白区切り文字列に潰さない
+# 配布対象外の管理下 symlink は sweep_managed_links が判定する
 check_collection_union() {
   local dst=$1
   shift
-  local exclude_csv="" src_dir name entry current expected desired="" resolved managed
+  local exclude_csv="" src_dir name
   local has_src=0
 
   if [ "${1:-}" = "--exclude" ]; then
@@ -332,32 +372,11 @@ check_collection_union() {
 
   check_collection_root "$dst" || return 0
 
-  for src_dir in "$@"; do
-    [ -d "$src_dir" ] || continue
-    for entry in "$src_dir"/*; do
-      [ -e "$entry" ] || [ -L "$entry" ] || continue
-      name="$(basename "$entry")"
-      case "$name" in
-        .*) continue ;;
-      esac
-      _is_excluded "$name" "$exclude_csv" && continue
-      case " $desired " in
-        *" $name "*) ;;
-        *) desired="$desired $name " ;;
-      esac
-    done
-  done
-
-  for name in $desired; do
-    expected=""
-    for src_dir in "$@"; do
-      [ -d "$src_dir" ] || continue
-      if [ -e "$src_dir/$name" ] || [ -L "$src_dir/$name" ]; then
-        expected="$src_dir/$name"
-      fi
-    done
-    [ -n "$expected" ] || continue
-    check_symlink "$dst/$name" "$expected"
+  _collection_fill_names "$exclude_csv" "$@"
+  for name in "${COLLECTION_NAMES[@]+"${COLLECTION_NAMES[@]}"}"; do
+    _collection_last_src "$name" "$@"
+    [ -n "$COLLECTION_SRC" ] || continue
+    check_symlink "$dst/$name" "$COLLECTION_SRC"
   done
 
   if [ -n "$exclude_csv" ] && [ -d "$dst" ]; then
@@ -369,75 +388,12 @@ check_collection_union() {
     for ex in "$@"; do
       [ -n "$ex" ] || continue
       if [ -L "$dst/$ex" ]; then
-        current="$(readlink "$dst/$ex")"
-        managed=0
-        case "$current" in
-          "$REPO_DIR"/*) managed=1 ;;
-        esac
-        if [ "$managed" -eq 0 ] && { [ -e "$dst/$ex" ] || [ -d "$dst/$ex" ]; }; then
-          resolved="$(realpath "$dst/$ex" 2>/dev/null || true)"
-          case "$resolved" in
-            "$REPO_DIR"/*) managed=1 ;;
-          esac
-        fi
-        if [ "$managed" -eq 1 ]; then
-          doctor_fail "$dst/$ex は exclude 対象なのに管理下 symlink が残っています: $current"
-        fi
+        continue
       elif [ -e "$dst/$ex" ]; then
         doctor_warn "$dst/$ex は exclude 対象だが実体が存在します（vendor なら無視可）"
       fi
     done
   fi
-
-  [ -d "$dst" ] || return 0
-
-  for entry in "$dst"/*; do
-    [ -e "$entry" ] || [ -L "$entry" ] || continue
-    name="$(basename "$entry")"
-    case "$name" in
-      .*) continue ;;
-    esac
-    [ -L "$entry" ] || continue
-
-    current="$(readlink "$entry")"
-    if [ ! -e "$entry" ] && [ ! -d "$entry" ]; then
-      case "$current" in
-        "$REPO_DIR"/*)
-          doctor_fail "$entry は壊れた管理下 symlink です: $current"
-          ;;
-        *)
-          doctor_warn "$entry は壊れた symlink です: $current"
-          ;;
-      esac
-      continue
-    fi
-
-    managed=0
-    case "$current" in
-      "$REPO_DIR"/*) managed=1 ;;
-    esac
-    if [ "$managed" -eq 0 ]; then
-      resolved="$(realpath "$entry" 2>/dev/null || true)"
-      case "$resolved" in
-        "$REPO_DIR"/*) managed=1 ;;
-      esac
-    fi
-    if [ "$managed" -eq 1 ]; then
-      case " $desired " in
-        *" $name "*) ;;
-        *)
-          doctor_fail "$entry は管理下 symlink だが配布対象外です: $current"
-          ;;
-      esac
-    fi
-  done
-}
-
-check_harness_skills() {
-  local dst=$1 harness=$2
-  check_collection_union "$dst" \
-    "$REPO_DIR/agents/skills" \
-    "$REPO_DIR/harnesses/$harness/skills"
 }
 
 # check_seed_file <template> <dst>
@@ -557,11 +513,74 @@ check_absolute_home_paths() {
 #   inv_symlink_if_host <host_dir> <repo_rel> <dst>  host があるときだけ
 #   inv_guard_dir <dst> [allow_csv]        doctor 専用。想定外エントリを warn
 
-# ---------- inventory 操作（apply / check） ----------
+# 管理下判定は readlink の prefix。realpath には頼らない（壊れた link を拾う）
+sweep_managed_links() {
+  local op=$1
+  local root child entry current item keep broken
+  INV_SWEEP_ROOTS=()
+  for root in "${INV_SCAN_ROOTS[@]+"${INV_SCAN_ROOTS[@]}"}"; do
+    _inv_sweep_root_add "$root"
+  done
+  for root in "${INV_HOMES[@]+"${INV_HOMES[@]}"}"; do
+    [ -d "$root" ] || continue
+    [ -L "$root" ] && continue
+    for child in "$root"/* "$root"/.[!.]* "$root"/..?*; do
+      [ -d "$child" ] || continue
+      [ -L "$child" ] && continue
+      _inv_sweep_root_add "$child"
+    done
+  done
+  for root in "${INV_SWEEP_ROOTS[@]+"${INV_SWEEP_ROOTS[@]}"}"; do
+    [ -d "$root" ] || continue
+    [ -L "$root" ] && continue
+    for entry in "$root"/* "$root"/.[!.]* "$root"/..?*; do
+      [ -L "$entry" ] || continue
+      keep=0
+      for item in "${INV_KEEP_DESTS[@]+"${INV_KEEP_DESTS[@]}"}"; do
+        if [ "$item" = "$entry" ]; then
+          keep=1
+          break
+        fi
+      done
+      [ "$keep" -eq 1 ] && continue
+      current="$(readlink "$entry")"
+      case "$current" in
+        "$REPO_DIR"/*) ;;
+        *) continue ;;
+      esac
+      if [ "$op" = apply ]; then
+        if [ -e "$entry" ] || [ -d "$entry" ]; then
+          broken=0
+        else
+          broken=1
+        fi
+        if rm "$entry"; then
+          SWEEP_REMOVED=$((SWEEP_REMOVED + 1))
+          if [ "$broken" -eq 1 ]; then
+            echo "🗑️ 壊れたシンボリックリンクを削除しました: $entry"
+          else
+            echo "🗑️ 配布対象外のシンボリックリンクを削除しました: $entry"
+          fi
+        else
+          link_blocked "配布対象外の symlink を削除できませんでした: $entry"
+        fi
+      else
+        if [ -e "$entry" ] || [ -d "$entry" ]; then
+          doctor_fail "$entry は管理下 symlink だが配布対象外です: $current"
+        else
+          doctor_fail "$entry は壊れた管理下 symlink です: $current"
+        fi
+      fi
+    done
+  done
+}
+
+# ---------- inventory 操作（collect / apply / check） ----------
 
 inv_home() {
   local dir=$1
   case "$REPO_OP" in
+    collect) _inv_home_add "$dir" ;;
     apply) ensure_dir "$dir" ;;
     check) check_home_dir "$dir" ;;
   esac
@@ -570,6 +589,10 @@ inv_home() {
 inv_symlink() {
   local rel=$1 dst=$2
   case "$REPO_OP" in
+    collect)
+      _inv_keep_add "$dst"
+      _inv_scan_add "$(dirname "$dst")"
+      ;;
     apply) link_from_repo "$rel" "$dst" ;;
     check) check_symlink "$dst" "$REPO_DIR/$rel" ;;
   esac
@@ -577,10 +600,7 @@ inv_symlink() {
 
 inv_harness_skills() {
   local dst=$1 harness=$2
-  case "$REPO_OP" in
-    apply) link_harness_skills "$dst" "$harness" ;;
-    check) check_harness_skills "$dst" "$harness" ;;
-  esac
+  inv_collection "$dst" "agents/skills" "harnesses/$harness/skills"
 }
 
 # inv_collection <dst> [--exclude a,b] <repo_rel>...
@@ -589,7 +609,7 @@ inv_harness_skills() {
 inv_collection() {
   local dst=$1
   shift
-  local has_exclude=0 exclude_csv="" rel
+  local has_exclude=0 exclude_csv="" rel name
   local -a abs_srcs=()
 
   if [ "${1:-}" = "--exclude" ]; then
@@ -602,6 +622,13 @@ inv_collection() {
   done
 
   case "$REPO_OP" in
+    collect)
+      _inv_scan_add "$dst"
+      _collection_fill_names "$exclude_csv" ${abs_srcs[@]+"${abs_srcs[@]}"}
+      for name in "${COLLECTION_NAMES[@]+"${COLLECTION_NAMES[@]}"}"; do
+        _inv_keep_add "$dst/$name"
+      done
+      ;;
     apply)
       if [ "$has_exclude" -eq 1 ]; then
         link_collection_union "$dst" --exclude "$exclude_csv" ${abs_srcs[@]+"${abs_srcs[@]}"}
@@ -622,6 +649,10 @@ inv_collection() {
 inv_seed() {
   local rel=$1 dst=$2
   case "$REPO_OP" in
+    collect)
+      _inv_keep_add "$dst"
+      _inv_scan_add "$(dirname "$dst")"
+      ;;
     apply)
       ensure_dir "$(dirname "$dst")"
       if copy_if_missing "$REPO_DIR/$rel" "$dst"; then
@@ -634,14 +665,14 @@ inv_seed() {
 
 inv_symlink_if_host() {
   local host_dir=$1 rel=$2 dst=$3
-  if [ -d "$host_dir" ]; then
+  if [ "$REPO_OP" = collect ] || [ -d "$host_dir" ]; then
     inv_symlink "$rel" "$dst"
-  else
-    case "$REPO_OP" in
-      apply) echo "⚠️ $host_dir が無いためスキップ: $dst" ;;
-      check) doctor_warn "$host_dir が無いためスキップ: $dst" ;;
-    esac
+    return 0
   fi
+  case "$REPO_OP" in
+    apply) echo "⚠️ $host_dir が無いためスキップ: $dst" ;;
+    check) doctor_warn "$host_dir が無いためスキップ: $dst" ;;
+  esac
 }
 
 # hooks 等の tripwire dir。apply は何もしない（検知専用。勝手に消さない）
@@ -653,7 +684,7 @@ inv_guard_dir() {
 }
 
 inv_section() {
-  # apply / check とも同じ見出し形式（doctor と揃える）
+  [ "$REPO_OP" = collect ] && return 0
   echo ""
   echo "## $1"
 }
@@ -671,6 +702,14 @@ run_inventory() {
     echo "run_inventory: REPO_DIR is not set" >&2
     return 2
   fi
+  INV_KEEP_DESTS=()
+  INV_SCAN_ROOTS=()
+  INV_HOMES=()
+  INV_SWEEP_ROOTS=()
+  SWEEP_REMOVED=0
+  REPO_OP=collect
+  inventory_define
   REPO_OP=$op
   inventory_define
+  sweep_managed_links "$op"
 }

@@ -134,6 +134,10 @@ echo "## summary"
 
 FAILED=0
 
+if [ "${SWEEP_REMOVED:-0}" -gt 0 ]; then
+  echo "🗑️ 配布対象外の管理下 symlink を ${SWEEP_REMOVED} 件削除しました。"
+fi
+
 if [ "$LINK_BLOCKED" -gt 0 ]; then
   echo "⚠️ symlink を作成できなかった箇所が ${LINK_BLOCKED} 件あります。"
   echo "   上の「実ディレクトリ / 実ファイル / 作成失敗」を確認し、退避または削除してから再実行してください。"

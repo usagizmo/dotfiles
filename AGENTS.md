@@ -104,6 +104,9 @@
 | 実ファイル              | 内容を repo へ取り込んでから symlink 化（差分は git で確認・discard できる） | ⚠️ 拒否                                                     |
 | 実ディレクトリ          | ⚠️ 触らない                                                                  | ⚠️ 触らない                                                 |
 
-- **⚠️ は必ず出し、件数を集計して非ゼロ終了する**（黙殺しない）。`ln` の失敗も同じ。実ディレクトリは自動削除しない
-- prune で消すのは **repo 配下を指す管理下 symlink のうち、配布対象に無いもの・壊れたもの**だけ。repo 外を指す link・実ファイル・実ディレクトリ（vendor の `.system` や Grok bundled skills 等）は触らない
+- 表の拒否と `ln` の失敗は `LINK_BLOCKED` に数え、`init.sh` は非ゼロ終了する。実ディレクトリは消さない
+- host 欠落の `inv_symlink_if_host` と doctor の warn は非ゼロにしない
+- prune の keep-set と走査範囲は `lib/links.sh`。消すのは管理下 symlink のうち keep-set に**無い**もの・壊れたものだけ。repo 外 link・実ファイル・実ディレクトリは触らない。seed dest は消さない
+- `inv_symlink` の dest は source 欠落でも keep-set に残る。collection の keep-set は存在する source の項目だけである
+- apply の sweep は件数を summary に出す。非ゼロ終了にはしない。check は同じずれを ❌ にする。配布先は消さない
 - doctor は実ファイル / 実ディレクトリを ❌ にする（read-only。修復は `init.sh`）
