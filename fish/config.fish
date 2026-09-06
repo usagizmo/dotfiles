@@ -38,6 +38,9 @@ set -gx EDITOR nvim
 # 機密情報は ~/.config/fish/conf.d/env.fish（untracked、fish が自動 source）
 # テンプレート: dotfiles の fish/env.fish（init.sh が初回 copy）
 
+# Command Code
+set -gx CMD_ZDR 1
+
 
 # --------------------
 # Tool Initialization
