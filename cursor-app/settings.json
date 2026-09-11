@@ -22,6 +22,7 @@
     "lang": "ja"
   },
   "window.commandCenter": false,
+  "window.autoDetectColorScheme": false,
   "workbench.colorTheme": "One Monokai",
   "workbench.colorCustomizations": {
     "editorUnnecessaryCode.opacity": "#00000066",
@@ -134,8 +135,7 @@
   "security.promptForLocalFileProtocolHandling": false,
   "security.workspace.trust.untrustedFiles": "open",
   "cursor.composer.shouldChimeAfterChatFinishes": true,
-  "cursor.composer.usageSummaryDisplay": "always",
+  "cursor.composer.queueMessageDefaultBehavior": "steer",
   "cursor.cpp.disabledLanguages": ["plaintext"],
   "update.mode": "silentlyApplyOnQuit",
-  "window.autoDetectColorScheme": false
 }
