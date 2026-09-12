@@ -29,6 +29,8 @@ inventory_define() {
   inv_symlink yazi/yazi.toml "$HOME/.config/yazi/yazi.toml"
   inv_symlink yazi/theme.toml "$HOME/.config/yazi/theme.toml"
   inv_symlink ghostty "$HOME/.config/ghostty"
+  inv_home "$HOME/.config/cmux"
+  inv_symlink cmux/cmux.json "$HOME/.config/cmux/cmux.json"
   inv_home "$HOME/.config/herdr"
   inv_symlink herdr/config.toml "$HOME/.config/herdr/config.toml"
   inv_symlink herdr/equalize-panes.py "$HOME/.config/herdr/equalize-panes.py"

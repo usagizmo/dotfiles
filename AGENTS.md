@@ -35,6 +35,7 @@
 | 🐚     | `[zsh]`        | Zsh シェル設定                                     |
 | 📝     | `[nvim]`       | Neovim 設定                                        |
 | 👻     | `[ghostty]`    | Ghostty ターミナル設定                             |
+| 🪟     | `[cmux]`       | cmux ターミナル設定                                |
 | 🐏     | `[herdr]`      | `herdr/` / `~/.config/herdr` 配下の herdr 設定     |
 | 📁     | `[yazi]`       | Yazi ファイルマネージャー設定                      |
 | 🔨     | `[mise]`       | mise ランタイムバージョン管理設定                  |
