@@ -73,6 +73,9 @@ fish_add_path "$HOME/.bun/bin"
 # LM Studio CLI
 fish_add_path "$HOME/.lmstudio/bin"
 
+# Docker Desktop
+fish_add_path -a "$HOME/.docker/bin"
+
 # Agent harnesses
 fish_add_path "$HOME/.opencode/bin"
 fish_add_path "$HOME/.codeium/windsurf/bin"
