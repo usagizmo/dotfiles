@@ -48,7 +48,7 @@ echo ""
 echo "## brew packages"
 
 # shell 設定が前提とする CLI（fish/zsh の alias・keybind・関数から参照）。形式: <brew パッケージ名>:<コマンド名>
-BREW_PACKAGES="safe-rm:safe-rm fzf:fzf neovim:nvim"
+BREW_PACKAGES="safe-rm:safe-rm fzf:fzf neovim:nvim zoxide:zoxide"
 
 if [ -x "$(command -v brew)" ]; then
   for entry in $BREW_PACKAGES; do

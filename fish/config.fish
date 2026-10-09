@@ -47,11 +47,11 @@ set -gx CMD_ZDR 1
 # Tool Initialization
 # --------------------
 
-# zoxide (スマートなディレクトリジャンプ)
-zoxide init fish | source
-
 # Homebrew
 eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# zoxide (スマートなディレクトリジャンプ)
+zoxide init fish | source
 
 # mise (ランタイムバージョン管理)
 mise activate fish | source
@@ -72,6 +72,9 @@ fish_add_path "$HOME/.bun/bin"
 
 # LM Studio CLI
 fish_add_path "$HOME/.lmstudio/bin"
+
+# Docker Desktop
+fish_add_path -a "$HOME/.docker/bin"
 
 # Agent harnesses
 fish_add_path "$HOME/.opencode/bin"
