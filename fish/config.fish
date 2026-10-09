@@ -47,11 +47,11 @@ set -gx CMD_ZDR 1
 # Tool Initialization
 # --------------------
 
-# zoxide (スマートなディレクトリジャンプ)
-zoxide init fish | source
-
 # Homebrew
 eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# zoxide (スマートなディレクトリジャンプ)
+zoxide init fish | source
 
 # mise (ランタイムバージョン管理)
 mise activate fish | source
