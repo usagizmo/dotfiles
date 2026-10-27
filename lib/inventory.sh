@@ -36,6 +36,7 @@ inventory_define() {
   inv_home "$HOME/Library/KeyBindings"
   inv_symlink Library/KeyBindings/DefaultKeyBinding.dict \
     "$HOME/Library/KeyBindings/DefaultKeyBinding.dict"
+  inv_symlink zsh/.zshenv "$HOME/.zshenv"
   inv_symlink zsh/.zshrc "$HOME/.zshrc"
 
   # --- Cursor IDE（インストール時のみ） ---
