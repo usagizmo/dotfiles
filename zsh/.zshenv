@@ -1,7 +1,7 @@
 # 非対話シェルを含む全 zsh で読まれる（Claude Code の Bash ツールなど）
 
 # ユーザーローカルのコマンド
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
 
 # Rust (cargo)
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
